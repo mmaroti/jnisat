@@ -1,0 +1,36 @@
+<!-- This is an ant makefile, type "ant" to run it -->
+<project name="jpicosat" default="library">
+	<target name="clean" description="removes all build artifacts">
+		<delete includeEmptyDirs="true">
+			<fileset dir="build" includes="**/*"/>
+		</delete>
+	</target>
+
+	<path id="classpath">
+		<pathelement path="build"/>
+	</path>
+
+	<target name="build" description="compiles java files">
+		<mkdir dir="build"/>
+		<javac srcdir="src" destdir="build" classpathref="classpath" includeantruntime="false"/>
+		<javah destdir="build" force="yes" classpathref="classpath">
+			<class name="jpicosat.JPicoSat"/>
+		</javah>
+	</target>
+
+	<target name="library" depends="build" description="compiles jni files">
+		<exec executable="gcc" os="Linux" dir="build" failonerror="true">
+			<arg value="-O3"/>
+			<arg value="-fPIC"/>
+			<arg value="-shared"/>
+			<arg value="-I${java.home}/../include/"/>
+			<arg value="-I${java.home}/../include/linux/"/>
+			<arg value="-I."/>
+			<arg value="../src/jpicosat/JPicoSat.c"/>
+			<arg value="-lpicosat"/>
+			<arg value="-o"/>
+			<arg value="libjpicosat.so"/>
+		</exec>
+	</target>
+	
+</project>

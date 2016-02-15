@@ -2,6 +2,4 @@
 .classpath
 .cproject
 .settings/
-src/**/*.class
-jni/jpicosat_JPicoSat.h
-jni/libjpicosat.so
+build/
