@@ -22,7 +22,7 @@
 
 package jnisat;
 
-public class JPicoSat {
+public class JPicoSat extends JNISat {
 	static {
 		try {
 			System.loadLibrary("jpicosat");
@@ -68,6 +68,7 @@ public class JPicoSat {
 	/**
 	 * Resets all PicoSAT memory associated with this instance.
 	 */
+	@Override
 	public void reset() {
 		assert handle != 0;
 		picosat_reset(handle);
@@ -82,20 +83,28 @@ public class JPicoSat {
 		handle = 0;
 	}
 
+	@Override
 	public int addVariable() {
 		return picosat_inc_max_var(handle);
 	}
 
+	@Override
 	public void addClause(int... literals) {
 		for (int lit : literals)
 			picosat_add(handle, lit);
 		picosat_add(handle, 0);
 	}
 
-	public int solve() {
-		return picosat_sat(handle, -1);
+	private static final int PICOSAT_UNKNOWN = 0;
+	private static final int PICOSAT_SATISFIABLE = 10;
+	private static final int PICOSAT_UNSATISFIABLE = 20;
+
+	@Override
+	public boolean solve() {
+		return picosat_sat(handle, -1) == PICOSAT_SATISFIABLE;
 	}
 
+	@Override
 	public int getValue(int literal) {
 		return picosat_deref(handle, literal);
 	}
@@ -115,16 +124,4 @@ public class JPicoSat {
 	private static native int picosat_sat(long handle, int decision_limit);
 
 	private static native int picosat_deref(long handle, int lit);
-
-	public static void main(String[] args) {
-		JPicoSat sat = new JPicoSat();
-		System.out.println(sat.addVariable());
-		System.out.println(sat.addVariable());
-		sat.addClause(-1, -2);
-		sat.addClause(1, -2);
-		sat.addClause(-1, 2);
-		System.out.println(sat.solve());
-		System.out.println(sat.getValue(1));
-		System.out.println(sat.getValue(2));
-	}
 }
