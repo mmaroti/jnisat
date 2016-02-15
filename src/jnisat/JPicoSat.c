@@ -22,40 +22,39 @@
  */
 
 #include <jni.h>
-#include <stdio.h>
 
 #include <picosat/picosat.h>
-#include "jpicosat_JPicoSat.h"
+#include "jnisat_JPicoSat.h"
 
-JNIEXPORT jstring JNICALL Java_jpicosat_JPicoSat_picosat_1version(JNIEnv *env, jclass cls) {
+JNIEXPORT jstring JNICALL Java_jnisat_JPicoSat_picosat_1version(JNIEnv *env, jclass cls) {
 	const char *msg = picosat_version();
 	return (*env)->NewStringUTF(env, msg);
 }
 
-JNIEXPORT jint JNICALL Java_jpicosat_JPicoSat_picosat_1api_1version(JNIEnv *env, jclass cls) {
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1api_1version(JNIEnv *env, jclass cls) {
 	return PICOSAT_API_VERSION;
 }
 
-JNIEXPORT jlong JNICALL Java_jpicosat_JPicoSat_picosat_1init(JNIEnv *env, jclass cls) {
+JNIEXPORT jlong JNICALL Java_jnisat_JPicoSat_picosat_1init(JNIEnv *env, jclass cls) {
 	return (jlong) picosat_init();
 }
 
-JNIEXPORT void JNICALL Java_jpicosat_JPicoSat_picosat_1reset(JNIEnv *env, jclass cls, jlong handle) {
+JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1reset(JNIEnv *env, jclass cls, jlong handle) {
 	picosat_reset((PicoSAT*) handle);
 }
 
-JNIEXPORT jint JNICALL Java_jpicosat_JPicoSat_picosat_1inc_1max_1var(JNIEnv *env, jclass cls, jlong handle) {
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1inc_1max_1var(JNIEnv *env, jclass cls, jlong handle) {
 	return picosat_inc_max_var((PicoSAT*) handle);
 }
 
-JNIEXPORT jint JNICALL Java_jpicosat_JPicoSat_picosat_1add(JNIEnv *env, jclass cls, jlong handle, jint lit) {
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1add(JNIEnv *env, jclass cls, jlong handle, jint lit) {
 	return picosat_add((PicoSAT*) handle, lit);
 }
 
-JNIEXPORT jint JNICALL Java_jpicosat_JPicoSat_picosat_1sat(JNIEnv *env, jclass cls, jlong handle, jint decision_limit) {
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1sat(JNIEnv *env, jclass cls, jlong handle, jint decision_limit) {
 	return picosat_sat((PicoSAT*) handle, decision_limit);
 }
 
-JNIEXPORT jint JNICALL Java_jpicosat_JPicoSat_picosat_1deref(JNIEnv *env, jclass cls, jlong handle, jint lit) {
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1deref(JNIEnv *env, jclass cls, jlong handle, jint lit) {
 	return picosat_deref((PicoSAT*) handle, lit);
 }

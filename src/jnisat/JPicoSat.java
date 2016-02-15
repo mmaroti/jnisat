@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2006 - 2014, Armin Biere, Johannes Kepler University.
- *               2016, Miklos Maroti, University of Szeged
+ * Copyright (c) 2016, Miklos Maroti, University of Szeged
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,17 +20,10 @@
  * IN THE SOFTWARE.
  */
 
-package jpicosat;
+package jnisat;
 
 public class JPicoSat {
 	static {
-		try {
-			System.load("/usr/lib/libpicosat.so");
-		} catch (UnsatisfiedLinkError e) {
-			throw new UnsatisfiedLinkError(
-					"JPicoSat: the picosat application is not installed");
-		}
-
 		try {
 			System.loadLibrary("jpicosat");
 		} catch (UnsatisfiedLinkError e) {

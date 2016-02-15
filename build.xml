@@ -1,5 +1,5 @@
 <!-- This is an ant makefile, type "ant" to run it -->
-<project name="jpicosat" default="library">
+<project name="jnisat" default="library">
 	<target name="clean" description="removes all build artifacts">
 		<delete includeEmptyDirs="true">
 			<fileset dir="build" includes="**/*"/>
@@ -14,7 +14,7 @@
 		<mkdir dir="build"/>
 		<javac srcdir="src" destdir="build" classpathref="classpath" includeantruntime="false"/>
 		<javah destdir="build" force="yes" classpathref="classpath">
-			<class name="jpicosat.JPicoSat"/>
+			<class name="jnisat.JPicoSat"/>
 		</javah>
 	</target>
 
@@ -26,7 +26,7 @@
 			<arg value="-I${java.home}/../include/"/>
 			<arg value="-I${java.home}/../include/linux/"/>
 			<arg value="-I."/>
-			<arg value="../src/jpicosat/JPicoSat.c"/>
+			<arg value="../src/jnisat/JPicoSat.c"/>
 			<arg value="-lpicosat"/>
 			<arg value="-o"/>
 			<arg value="libjpicosat.so"/>
