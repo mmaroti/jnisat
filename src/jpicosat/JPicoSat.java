@@ -25,12 +25,114 @@ package jpicosat;
 
 public class JPicoSat {
 	static {
-		System.loadLibrary("jpicosat");
+		try {
+			System.load("/usr/lib/libpicosat.so");
+		} catch (UnsatisfiedLinkError e) {
+			throw new UnsatisfiedLinkError(
+					"JPicoSat: the picosat application is not installed");
+		}
+
+		try {
+			System.loadLibrary("jpicosat");
+		} catch (UnsatisfiedLinkError e) {
+			throw new UnsatisfiedLinkError(
+					"JPicoSat: the jpicosat JNI library is not found");
+		}
+
+		int pv = getVersion();
+		int av = getApiVersion();
+		if (pv < av) {
+			throw new UnsatisfiedLinkError("JPicoSat: your picosat version "
+					+ pv + " is too old, need at least " + av);
+		}
 	}
 
-	private native void test();
+	/**
+	 * @return the actual version of the PicoSAT solver library installed on
+	 *         your system
+	 */
+	public static int getVersion() {
+		return Integer.parseInt(picosat_version());
+	}
+
+	/**
+	 * @return the expected version of the PicoSAT solver library that this
+	 *         JPicoSat JNI library needs
+	 */
+	public static int getApiVersion() {
+		return picosat_api_version();
+	}
+
+	private long handle;
+
+	/**
+	 * Constructs a new PicoSAT instance and reserves some memory.
+	 */
+	public JPicoSat() {
+		handle = picosat_init();
+		assert handle != 0;
+	}
+
+	/**
+	 * Resets all PicoSAT memory associated with this instance.
+	 */
+	public void reset() {
+		assert handle != 0;
+		picosat_reset(handle);
+		handle = picosat_init();
+		assert handle != 0;
+	}
+
+	@Override
+	protected void finalize() {
+		assert handle != 0;
+		picosat_reset(handle);
+		handle = 0;
+	}
+
+	public int addVariable() {
+		return picosat_inc_max_var(handle);
+	}
+
+	public void addClause(int... literals) {
+		for (int lit : literals)
+			picosat_add(handle, lit);
+		picosat_add(handle, 0);
+	}
+
+	public int solve() {
+		return picosat_sat(handle, -1);
+	}
+
+	public int getValue(int literal) {
+		return picosat_deref(handle, literal);
+	}
+
+	private static native String picosat_version();
+
+	private static native int picosat_api_version();
+
+	private static native long picosat_init();
+
+	private static native void picosat_reset(long handle);
+
+	private static native int picosat_inc_max_var(long handle);
+
+	private static native int picosat_add(long handle, int lit);
+
+	private static native int picosat_sat(long handle, int decision_limit);
+
+	private static native int picosat_deref(long handle, int lit);
 
 	public static void main(String[] args) {
-		new JPicoSat().test();
+		JPicoSat sat = new JPicoSat();
+		System.out.println(sat.addVariable());
+		System.out.println(sat.addVariable());
+		sat.addClause(-1, -2);
+		sat.addClause(1, -2);
+		sat.addClause(-1, 2);
+		System.out.println(sat.solve());
+		System.out.println(sat.getValue(1));
+		System.out.println(sat.getValue(2));
 	}
 }
