@@ -23,11 +23,11 @@
 package jnisat;
 
 public class Validate {
-	private final JNISat sat;
+	private final Solver sat;
 	private final int size;
 	private final int[] table;
 
-	public Validate(JNISat solver, int size) {
+	public Validate(Solver solver, int size) {
 		this.sat = solver;
 		this.size = size;
 		this.table = new int[size * size];
@@ -90,7 +90,7 @@ public class Validate {
 	}
 
 	public static void main(String[] args) {
-		JNISat pico = new JPicoSat();
+		Solver pico = new JPicoSat();
 		Validate verify = new Validate(pico, 5);
 		verify.run();
 	}

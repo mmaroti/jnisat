@@ -22,15 +22,15 @@
 
 package jnisat;
 
-public class JPicoSat extends JNISat {
+public class JPicoSat extends Solver {
 	static {
-		loadLibrary("jpicosat");
+		LibDetect.loadLibrary("picosat");
 
 		int pv = getVersion();
 		int av = getApiVersion();
 		if (pv < av) {
-			throw new UnsatisfiedLinkError("JPicoSat: your picosat version "
-					+ pv + " is too old, need at least " + av);
+			throw new UnsatisfiedLinkError("Your picosat version " + pv
+					+ " is too old, need at least " + av);
 		}
 	}
 

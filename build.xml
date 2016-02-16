@@ -6,68 +6,34 @@
 		</delete>
 	</target>
 
-	<path id="classpath">
-		<pathelement path="build" />
-	</path>
-
 	<target name="build" description="compiles the java files">
 		<mkdir dir="build" />
-		<javac srcdir="src" destdir="build" classpathref="classpath" includeantruntime="false" />
-		<javah destdir="build" force="yes" classpathref="classpath">
+		<javac srcdir="src" destdir="build" classpath="build" includeantruntime="false" />
+		<javah destdir="build" force="yes" classpath="build">
 			<class name="jnisat.JPicoSat" />
 		</javah>
 	</target>
 
-	<condition property="jnisat.platform" value="linux">
-		<contains string="${os.name}" substring="Linux" />
-	</condition>
-
-	<condition property="jnisat.platform" value="win">
-		<contains string="${os.name}" substring="Windows" />
-	</condition>
-
-	<condition property="jnisat.platform" value="osx">
-		<or>
-			<contains string="${os.name}" substring="Mac OS X" />
-			<contains string="${os.name}" substring="Darwin" />
-		</or>
-	</condition>
-
-	<condition property="jnisat.arch" value="32">
-		<or>
-			<contains string="${os.arch}" substring="x86" />
-			<contains string="${os.arch}" substring="i386" />
-		</or>
-	</condition>
-
-	<condition property="jnisat.arch" value="64">
-		<or>
-			<contains string="${os.arch}" substring="amd64" />
-			<contains string="${os.arch}" substring="x86_64" />
-		</or>
-	</condition>
-
-	<condition property="jnisat.libext" value="linux${jnisat.arch}.so">
-		<equals arg1="${jnisat.platform}" arg2="linux" />
-	</condition>
-
-	<condition property="jnisat.libext" value="win${jnisat.arch}.dll">
-		<equals arg1="${jnisat.platform}" arg2="win" />
-	</condition>
-
-	<condition property="jnisat.libext" value="osx${jnisat.arch}.dylib">
-		<equals arg1="${jnisat.platform}" arg2="osx" />
-	</condition>
-
-	<target name="detect">
+	<target name="detect" depends="build">
 		<echo message="os.name: ${os.name}" />
 		<echo message="os.arch: ${os.arch}" />
-		<echo message="jnisat.platform: ${jnisat.platform}" />
-		<echo message="jnisat.arch:     ${jnisat.arch}" />
-		<echo message="jnisat.libext:   ${jnisat.libext}" />
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.suffix">
+			<arg value="suffix" />
+		</java>
+		<echo message="jnisat.suffix: ${jnisat.suffix}" />
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.picosat" fork="true">
+			<arg value="testlib" />
+			<arg value="picosat" />
+		</java>
+		<echo message="jnisat.picosat: ${jnisat.picosat}" />
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.minisat" fork="true">
+			<arg value="testlib" />
+			<arg value="minisat" />
+		</java>
+		<echo message="jnisat.minisat: ${jnisat.minisat}" />
 	</target>
 
-	<target name="picosat" depends="build" description="compiles the jpicosat library">
+	<target name="picosat" depends="detect" description="compiles the jpicosat library">
 		<exec executable="gcc" os="Linux" dir="build" failonerror="true">
 			<arg value="-O3" />
 			<arg value="-fPIC" />
@@ -78,9 +44,9 @@
 			<arg value="../src/jnisat/JPicoSat.c" />
 			<arg value="-lpicosat" />
 			<arg value="-o" />
-			<arg value="jpicosat-${jnisat.libext}" />
+			<arg value="jpicosat-${jnisat.suffix}" />
 		</exec>
-		<move file="build/jpicosat-${jnisat.libext}" todir="lib" />
+		<move file="build/jpicosat-${jnisat.suffix}" todir="lib" />
 	</target>
 
 	<target name="jar" depends="build" description="builds the jnisat.jar file">

@@ -24,17 +24,7 @@ package jnisat;
 
 import java.io.*;
 
-public abstract class JNISat {
-	public abstract void reset();
-
-	public abstract int addVariable();
-
-	public abstract void addClause(int... literals);
-
-	public abstract boolean solve();
-
-	public abstract int getValue(int literal);
-
+public class LibDetect {
 	private static String getLibrarySuffix() {
 		String os;
 		String arch;
@@ -51,7 +41,7 @@ public abstract class JNISat {
 			os = "osx";
 			ext = "dylib";
 		} else
-			throw new RuntimeException("unknown operating system");
+			return "unknown";
 
 		String osarch = System.getProperty("os.arch");
 		if (osarch.equals("x86") || osarch.equals("i386"))
@@ -59,16 +49,16 @@ public abstract class JNISat {
 		else if (osarch.equals("x86_64") || osarch.equals("amd64"))
 			arch = "64";
 		else
-			throw new RuntimeException("unknown architecture");
+			return "unknown";
 
-		return "-" + os + arch + "." + ext;
+		return os + arch + "." + ext;
 	}
 
 	public final static String LIBRARY_SUFFIX = getLibrarySuffix();
 
-	protected static void loadLibrary(String name) {
-		name = name + LIBRARY_SUFFIX;
-		InputStream is = JNISat.class.getResourceAsStream("/" + name);
+	public static void loadLibrary(String name) {
+		name = "j" + name + "-" + LIBRARY_SUFFIX;
+		InputStream is = Solver.class.getResourceAsStream("/" + name);
 		if (is == null)
 			throw new UnsatisfiedLinkError("Could not find " + name
 					+ " inside the JAR");
@@ -78,8 +68,8 @@ public abstract class JNISat {
 
 		try {
 			int i = name.lastIndexOf('.');
-			temp = File.createTempFile(name.substring(0, i),
-					name.substring(i + 1));
+			temp = File.createTempFile(name.substring(0, i) + "-",
+					name.substring(i));
 			temp.deleteOnExit();
 			os = new FileOutputStream(temp);
 		} catch (IOException e) {
@@ -103,5 +93,26 @@ public abstract class JNISat {
 		}
 
 		System.load(temp.getAbsolutePath());
+	}
+
+	private static String testLibrary(String name) {
+		try {
+			System.loadLibrary(name);
+			return "installed";
+		} catch (UnsatisfiedLinkError e) {
+			return "not found";
+		}
+	}
+
+	public static void main(String[] args) {
+		if (args.length == 1 && args[0].equals("suffix"))
+			System.out.println(LIBRARY_SUFFIX);
+		else if (args.length == 2 && args[0].equals("testlib"))
+			System.out.println(testLibrary(args[1]));
+		else {
+			System.out.println("suffix: " + LIBRARY_SUFFIX);
+			System.out.println("picosat: " + testLibrary("picosat"));
+			System.out.println("minisat: " + testLibrary("minisat"));
+		}
 	}
 }
