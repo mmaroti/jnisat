@@ -36,14 +36,8 @@ public abstract class JNISat {
 	public abstract int getValue(int literal);
 
 	protected static void loadLibrary(String name) {
-		try {
-			System.loadLibrary(name);
-			return;
-		} catch (UnsatisfiedLinkError e) {
-		}
-
-		InputStream is = JNISat.class
-				.getResourceAsStream("/lib" + name + ".so");
+		InputStream is = JNISat.class.getResourceAsStream("/" + name
+				+ "-linux64.so");
 		if (is == null)
 			throw new UnsatisfiedLinkError("Could not find lib" + name
 					+ ".so inside the JAR");

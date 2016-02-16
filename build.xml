@@ -18,6 +18,55 @@
 		</javah>
 	</target>
 
+	<condition property="jnisat.platform" value="linux">
+		<contains string="${os.name}" substring="Linux" />
+	</condition>
+
+	<condition property="jnisat.platform" value="win">
+		<contains string="${os.name}" substring="Windows" />
+	</condition>
+
+	<condition property="jnisat.platform" value="osx">
+		<or>
+			<contains string="${os.name}" substring="Mac OS X" />
+			<contains string="${os.name}" substring="Darwin" />
+		</or>
+	</condition>
+
+	<condition property="jnisat.arch" value="32">
+		<or>
+			<contains string="${os.arch}" substring="x86" />
+			<contains string="${os.arch}" substring="i386" />
+		</or>
+	</condition>
+	
+	<condition property="jnisat.arch" value="64">
+		<or>
+			<contains string="${os.arch}" substring="amd64" />
+			<contains string="${os.arch}" substring="x86_64" />
+		</or>
+	</condition>
+
+	<condition property="jnisat.libext" value="linux${jnisat.arch}.so">
+		<equals arg1="${jnisat.platform}" arg2="linux" />
+	</condition>
+	
+	<condition property="jnisat.libext" value="win${jnisat.arch}.dll">
+		<equals arg1="${jnisat.platform}" arg2="win" />
+	</condition>
+	
+	<condition property="jnisat.libext" value="osx${jnisat.arch}.dylib">
+		<equals arg1="${jnisat.platform}" arg2="osx" />
+	</condition>
+
+	<target name="detect">
+		<echo message="os.name: ${os.name}" />
+		<echo message="os.arch: ${os.arch}" />
+		<echo message="jnisat.platform: ${jnisat.platform}" />
+		<echo message="jnisat.arch:     ${jnisat.arch}" />
+		<echo message="jnisat.libext:   ${jnisat.libext}" />
+	</target>
+
 	<target name="library" depends="build" description="compiles the jni files">
 		<exec executable="gcc" os="Linux" dir="build" failonerror="true">
 			<arg value="-O3" />
@@ -29,7 +78,7 @@
 			<arg value="../src/jnisat/JPicoSat.c" />
 			<arg value="-lpicosat" />
 			<arg value="-o" />
-			<arg value="libjpicosat.so" />
+			<arg value="jpicosat-${jnisat.libext}" />
 		</exec>
 	</target>
 
@@ -48,8 +97,8 @@
 
 	<target name="validate" depends="jar" description="runs the validation program">
 		<java jar="jnisat.jar" fork="true">
-			<jvmarg value="-ea"/>
+			<jvmarg value="-ea" />
 		</java>
 	</target>
-	
+
 </project>
