@@ -22,6 +22,8 @@
 
 package jnisat;
 
+import java.io.*;
+
 public abstract class JNISat {
 	public abstract void reset();
 
@@ -32,4 +34,47 @@ public abstract class JNISat {
 	public abstract boolean solve();
 
 	public abstract int getValue(int literal);
+
+	protected static void loadLibrary(String name) {
+		try {
+			System.loadLibrary(name);
+			return;
+		} catch (UnsatisfiedLinkError e) {
+		}
+
+		InputStream is = JNISat.class
+				.getResourceAsStream("/lib" + name + ".so");
+		if (is == null)
+			throw new UnsatisfiedLinkError("Could not find lib" + name
+					+ ".so inside the JAR");
+
+		File temp;
+		OutputStream os;
+
+		try {
+			temp = File.createTempFile("lib" + name, "so");
+			temp.deleteOnExit();
+			os = new FileOutputStream(temp);
+		} catch (IOException e) {
+			throw new UnsatisfiedLinkError(e.getMessage());
+		}
+
+		try {
+			try {
+				byte[] buffer = new byte[4096];
+				int count;
+
+				while ((count = is.read(buffer)) != -1) {
+					os.write(buffer, 0, count);
+				}
+			} finally {
+				os.close();
+				is.close();
+			}
+		} catch (IOException e) {
+			throw new UnsatisfiedLinkError(e.getMessage());
+		}
+
+		System.load(temp.getAbsolutePath());
+	}
 }

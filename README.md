@@ -6,7 +6,7 @@ a JAR file, however it does not contain the PicoSAT library itself, but
 dynamically links to the currently available one on your system. On debian
 derived distributions you can install it with `sudo apt-get install picosat`.
 
-You can build the JAR file with `ant`, and verify it with `ant verify`.
+You can build the JAR file with `ant`, and validate it with `ant validate`.
 
 ## License
 

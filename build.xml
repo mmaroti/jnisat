@@ -1,36 +1,55 @@
 <!-- This is an ant makefile, type "ant" to run it -->
-<project name="jnisat" default="library">
+<project name="jnisat" default="jar">
 	<target name="clean" description="removes all build artifacts">
 		<delete includeEmptyDirs="true">
-			<fileset dir="build" includes="**/*"/>
+			<fileset dir="build" includes="**/*" />
 		</delete>
 	</target>
 
 	<path id="classpath">
-		<pathelement path="build"/>
+		<pathelement path="build" />
 	</path>
 
-	<target name="build" description="compiles java files">
-		<mkdir dir="build"/>
-		<javac srcdir="src" destdir="build" classpathref="classpath" includeantruntime="false"/>
+	<target name="build" description="compiles the java files">
+		<mkdir dir="build" />
+		<javac srcdir="src" destdir="build" classpathref="classpath" includeantruntime="false" />
 		<javah destdir="build" force="yes" classpathref="classpath">
-			<class name="jnisat.JPicoSat"/>
+			<class name="jnisat.JPicoSat" />
 		</javah>
 	</target>
 
-	<target name="library" depends="build" description="compiles jni files">
+	<target name="library" depends="build" description="compiles the jni files">
 		<exec executable="gcc" os="Linux" dir="build" failonerror="true">
-			<arg value="-O3"/>
-			<arg value="-fPIC"/>
-			<arg value="-shared"/>
-			<arg value="-I${java.home}/../include/"/>
-			<arg value="-I${java.home}/../include/linux/"/>
-			<arg value="-I."/>
-			<arg value="../src/jnisat/JPicoSat.c"/>
-			<arg value="-lpicosat"/>
-			<arg value="-o"/>
-			<arg value="libjpicosat.so"/>
+			<arg value="-O3" />
+			<arg value="-fPIC" />
+			<arg value="-shared" />
+			<arg value="-I${java.home}/../include/" />
+			<arg value="-I${java.home}/../include/linux/" />
+			<arg value="-I." />
+			<arg value="../src/jnisat/JPicoSat.c" />
+			<arg value="-lpicosat" />
+			<arg value="-o" />
+			<arg value="libjpicosat.so" />
 		</exec>
+	</target>
+
+	<target name="jar" depends="library" description="builds the jnisat.jar file">
+		<jar destfile="jnisat.jar" includes="" compress="true">
+			<fileset dir="build" includes="**/*.class" />
+			<fileset dir="build" includes="*.so" />
+			<fileset file="LICENSE" />
+			<fileset file="README.md" />
+			<manifest>
+				<attribute name="Main-Class" value="jnisat.Validate" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="validate" depends="jar" description="runs the validation program">
+		<java jar="jnisat.jar" fork="true">
+			<jvmarg value="-ea"/>
+		</java>
 	</target>
 	
 </project>

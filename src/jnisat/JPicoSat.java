@@ -24,12 +24,7 @@ package jnisat;
 
 public class JPicoSat extends JNISat {
 	static {
-		try {
-			System.loadLibrary("jpicosat");
-		} catch (UnsatisfiedLinkError e) {
-			throw new UnsatisfiedLinkError(
-					"JPicoSat: the jpicosat JNI library is not found");
-		}
+		loadLibrary("jpicosat");
 
 		int pv = getVersion();
 		int av = getApiVersion();

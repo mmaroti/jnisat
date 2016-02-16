@@ -22,12 +22,12 @@
 
 package jnisat;
 
-public class Verify {
+public class Validate {
 	private final JNISat sat;
 	private final int size;
 	private final int[] table;
 
-	public Verify(JNISat solver, int size) {
+	public Validate(JNISat solver, int size) {
 		this.sat = solver;
 		this.size = size;
 		this.table = new int[size * size];
@@ -83,15 +83,16 @@ public class Verify {
 		antisymm();
 		transitive();
 		int a = findall();
-		System.out.println(a);
 
 		time = System.currentTimeMillis() - time;
-		System.out.println("Elapsed time " + time + " ms");
+
+		System.out.println("Number of posets of size " + size + " is: " + a);
+		System.out.println("Elapsed time: " + time + " milliseconds");
 	}
 
 	public static void main(String[] args) {
 		JNISat pico = new JPicoSat();
-		Verify verify = new Verify(pico, 6);
+		Validate verify = new Validate(pico, 5);
 		verify.run();
 	}
 }
