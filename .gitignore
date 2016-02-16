@@ -2,5 +2,6 @@
 .classpath
 .cproject
 .settings/
+src/**/*~
 build/
 jnisat.jar
