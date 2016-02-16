@@ -85,8 +85,7 @@ public class Validate {
 		int a = findall();
 
 		time = System.currentTimeMillis() - time;
-
-		System.out.println("Number of posets of size " + size + " is: " + a);
+		System.out.println("Number of " + size + "-element posets: " + a);
 		System.out.println("Elapsed time: " + time + " milliseconds");
 	}
 
