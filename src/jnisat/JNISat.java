@@ -35,18 +35,51 @@ public abstract class JNISat {
 
 	public abstract int getValue(int literal);
 
+	private static String getLibrarySuffix() {
+		String os;
+		String arch;
+		String ext;
+
+		String osname = System.getProperty("os.name");
+		if (osname.startsWith("Linux")) {
+			os = "linux";
+			ext = "so";
+		} else if (osname.startsWith("Windows")) {
+			os = "win";
+			ext = "dll";
+		} else if (osname.startsWith("Mac OS") || osname.startsWith("Darwin")) {
+			os = "osx";
+			ext = "dylib";
+		} else
+			throw new RuntimeException("unknown operating system");
+
+		String osarch = System.getProperty("os.arch");
+		if (osarch.equals("x86") || osarch.equals("i386"))
+			arch = "32";
+		else if (osarch.equals("x86_64") || osarch.equals("amd64"))
+			arch = "64";
+		else
+			throw new RuntimeException("unknown architecture");
+
+		return "-" + os + arch + "." + ext;
+	}
+
+	public final static String LIBRARY_SUFFIX = getLibrarySuffix();
+
 	protected static void loadLibrary(String name) {
-		InputStream is = JNISat.class.getResourceAsStream("/" + name
-				+ "-linux64.so");
+		name = name + LIBRARY_SUFFIX;
+		InputStream is = JNISat.class.getResourceAsStream("/" + name);
 		if (is == null)
-			throw new UnsatisfiedLinkError("Could not find lib" + name
-					+ ".so inside the JAR");
+			throw new UnsatisfiedLinkError("Could not find " + name
+					+ " inside the JAR");
 
 		File temp;
 		OutputStream os;
 
 		try {
-			temp = File.createTempFile("lib" + name, "so");
+			int i = name.lastIndexOf('.');
+			temp = File.createTempFile(name.substring(0, i),
+					name.substring(i + 1));
 			temp.deleteOnExit();
 			os = new FileOutputStream(temp);
 		} catch (IOException e) {
