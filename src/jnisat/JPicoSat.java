@@ -57,30 +57,48 @@ public class JPicoSat extends Solver {
 	 */
 	public JPicoSat() {
 		handle = picosat_init();
-		assert handle != 0;
+		if (handle == 0)
+			throw new OutOfMemoryError();
 	}
 
-	/**
-	 * Resets all PicoSAT memory associated with this instance.
-	 */
 	@Override
 	public void reset() {
-		assert handle != 0;
-		picosat_reset(handle);
+		if (handle != 0)
+			picosat_reset(handle);
 		handle = picosat_init();
-		assert handle != 0;
 	}
 
 	@Override
 	protected void finalize() {
-		assert handle != 0;
-		picosat_reset(handle);
+		if (handle != 0)
+			picosat_reset(handle);
 		handle = 0;
 	}
 
 	@Override
 	public int addVariable() {
 		return picosat_inc_max_var(handle);
+	}
+
+	@Override
+	public void addClause(int lit) {
+		picosat_add(handle, lit);
+		picosat_add(handle, 0);
+	}
+
+	@Override
+	public void addClause(int lit1, int lit2) {
+		picosat_add(handle, lit1);
+		picosat_add(handle, lit2);
+		picosat_add(handle, 0);
+	}
+
+	@Override
+	public void addClause(int lit1, int lit2, int lit3) {
+		picosat_add(handle, lit1);
+		picosat_add(handle, lit2);
+		picosat_add(handle, lit3);
+		picosat_add(handle, 0);
 	}
 
 	@Override
@@ -96,7 +114,11 @@ public class JPicoSat extends Solver {
 
 	@Override
 	public boolean solve() {
-		return picosat_sat(handle, -1) == PICOSAT_SATISFIABLE;
+		int a = picosat_sat(handle, -1);
+		if (a != PICOSAT_SATISFIABLE && a != PICOSAT_UNSATISFIABLE)
+			throw new IllegalStateException();
+
+		return a == PICOSAT_SATISFIABLE;
 	}
 
 	@Override

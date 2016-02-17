@@ -1,6 +1,5 @@
 /**
- * Copyright (c) 2006 - 2014, Armin Biere, Johannes Kepler University.
- *               2016, Miklos Maroti, University of Szeged
+ * Copyright (c) 2016, Miklos Maroti, University of Szeged
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -27,43 +26,51 @@
 #include <picosat/picosat.h>
 #include "jnisat_JPicoSat.h"
 
-JNIEXPORT jstring JNICALL Java_jnisat_JPicoSat_picosat_1version
-(JNIEnv *env, jclass cls) {
+JNIEXPORT jstring JNICALL Java_jnisat_JPicoSat_picosat_1version(JNIEnv *env,
+		jclass cls) {
 	const char *msg = picosat_version();
 	return (*env)->NewStringUTF(env, msg);
 }
 
-JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1api_1version
-(JNIEnv *env, jclass cls) {
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1api_1version(JNIEnv *env,
+		jclass cls) {
 	return PICOSAT_API_VERSION;
 }
 
-JNIEXPORT jlong JNICALL Java_jnisat_JPicoSat_picosat_1init
-(JNIEnv *env, jclass cls) {
-	return (jlong)(intptr_t) picosat_init();
+static inline jlong encode(PicoSAT* p) {
+	return (jlong) (intptr_t) p;
+}
+
+static inline PicoSAT* decode(jlong h) {
+	return (PicoSAT*) (intptr_t) h;
+}
+
+JNIEXPORT jlong JNICALL Java_jnisat_JPicoSat_picosat_1init(JNIEnv *env,
+		jclass cls) {
+	return encode(picosat_init());
 }
 
 JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1reset
 (JNIEnv *env, jclass cls, jlong handle) {
-	picosat_reset((PicoSAT*)(intptr_t) handle);
+	picosat_reset(decode(handle));
 }
 
-JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1inc_1max_1var
-(JNIEnv *env, jclass cls, jlong handle) {
-	return picosat_inc_max_var((PicoSAT*)(intptr_t) handle);
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1inc_1max_1var(JNIEnv *env,
+		jclass cls, jlong handle) {
+	return picosat_inc_max_var(decode(handle));
 }
 
-JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1add
-(JNIEnv *env, jclass cls, jlong handle, jint lit) {
-	return picosat_add((PicoSAT*)(intptr_t) handle, lit);
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1add(JNIEnv *env,
+		jclass cls, jlong handle, jint lit) {
+	return picosat_add(decode(handle), lit);
 }
 
-JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1sat
-(JNIEnv *env, jclass cls, jlong handle, jint decision_limit) {
-	return picosat_sat((PicoSAT*)(intptr_t) handle, decision_limit);
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1sat(JNIEnv *env,
+		jclass cls, jlong handle, jint decision_limit) {
+	return picosat_sat(decode(handle), decision_limit);
 }
 
-JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1deref
-(JNIEnv *env, jclass cls, jlong handle, jint lit) {
-	return picosat_deref((PicoSAT*)(intptr_t) handle, lit);
+JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1deref(JNIEnv *env,
+		jclass cls, jlong handle, jint lit) {
+	return picosat_deref(decode(handle), lit);
 }

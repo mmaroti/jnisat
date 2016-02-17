@@ -11,6 +11,7 @@
 		<javac srcdir="src" destdir="build" classpath="build" includeantruntime="false" />
 		<javah destdir="build" force="yes" classpath="build">
 			<class name="jnisat.JPicoSat" />
+			<class name="jnisat.JMiniSat" />
 		</javah>
 	</target>
 
@@ -35,6 +36,7 @@
 
 	<target name="picosat" depends="detect" description="compiles the jpicosat library">
 		<exec executable="gcc" os="Linux" dir="build" failonerror="true">
+			<arg value="-Wall" />
 			<arg value="-O3" />
 			<arg value="-fPIC" />
 			<arg value="-shared" />
@@ -47,6 +49,23 @@
 			<arg value="jpicosat-${jnisat.suffix}" />
 		</exec>
 		<move file="build/jpicosat-${jnisat.suffix}" todir="lib" />
+	</target>
+
+	<target name="minisat" depends="detect" description="compiles the jpicosat library">
+		<exec executable="g++" os="Linux" dir="build" failonerror="true">
+			<arg value="-Wall" />
+			<arg value="-O3" />
+			<arg value="-fPIC" />
+			<arg value="-shared" />
+			<arg value="-I${java.home}/../include/" />
+			<arg value="-I${java.home}/../include/linux/" />
+			<arg value="-I." />
+			<arg value="../src/jnisat/JMiniSat.cpp" />
+			<arg value="-lminisat" />
+			<arg value="-o" />
+			<arg value="jminisat-${jnisat.suffix}" />
+		</exec>
+		<move file="build/jminisat-${jnisat.suffix}" todir="lib" />
 	</target>
 
 	<target name="jar" depends="build" description="builds the jnisat.jar file">

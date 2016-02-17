@@ -90,8 +90,8 @@ public class Validate {
 	}
 
 	public static void main(String[] args) {
-		Solver pico = new JPicoSat();
-		Validate verify = new Validate(pico, 5);
+		Solver s = new JMiniSat();
+		Validate verify = new Validate(s, 5);
 		verify.run();
 	}
 }

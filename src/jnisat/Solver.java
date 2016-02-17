@@ -23,13 +23,72 @@
 package jnisat;
 
 public abstract class Solver {
+	/**
+	 * Resets all memory associated with this instance.
+	 */
 	public abstract void reset();
 
+	/**
+	 * Adds a new variable to the solver.
+	 *
+	 * @return the index of the new variable
+	 */
 	public abstract int addVariable();
 
+	/**
+	 * Adds a single literal clause to the solver.
+	 *
+	 * @param lit
+	 *            the literal to be added
+	 */
+	public abstract void addClause(int lit);
+
+	/**
+	 * Adds a two literal clause to the solver.
+	 *
+	 * @param lit1
+	 *            the first literal of the clause
+	 * @param lit2
+	 *            the second literal of the clause
+	 */
+
+	public abstract void addClause(int lit1, int lit2);
+
+	/**
+	 * Adds a three literal clause to the solver.
+	 *
+	 * @param lit1
+	 *            the first literal of the clause
+	 * @param lit2
+	 *            the second literal of the clause
+	 * @param lit3
+	 *            the third literal of the clause
+	 */
+	public abstract void addClause(int lit1, int lit2, int lit3);
+
+	/**
+	 * Adds a new clause to the solver.
+	 *
+	 * @param literals
+	 *            the list of literals (positive or negative variable indices)
+	 *            of the new clause
+	 */
 	public abstract void addClause(int... literals);
 
+	/**
+	 * Solves the currently added variables and clauses.
+	 *
+	 * @return <code>true</code> if the instance is solvable
+	 */
 	public abstract boolean solve();
 
+	/**
+	 * Queries the value of a literal in the solution.
+	 *
+	 * @param literal
+	 *            the index of the variable to be queried
+	 * @return positive if the literal is true, negative if the literal is false
+	 *         and zero if the value can be either true or false
+	 */
 	public abstract int getValue(int literal);
 }
