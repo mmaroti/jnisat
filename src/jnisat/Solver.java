@@ -22,6 +22,10 @@
 
 package jnisat;
 
+/**
+ * This is the base class of all SAT solvers. All variables are numbered
+ * starting from 1, and their negated literals are negative values.
+ */
 public abstract class Solver {
 	/**
 	 * Resets all memory associated with this instance.

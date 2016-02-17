@@ -36,20 +36,17 @@ public class Validate {
 	private void generate() {
 		for (int i = 0; i < table.length; i++)
 			table[i] = sat.addVariable();
-	}
 
-	private void reflexive() {
+		// reflexive
 		for (int i = 0; i < size; i++)
 			sat.addClause(table[i * (size + 1)]);
-	}
 
-	private void antisymm() {
-		for (int i = 1; i < size; i++)
-			for (int j = 0; j < i; j++)
-				sat.addClause(-table[i * size + j], -table[j * size + i]);
-	}
+		// symmetric
+		for (int i = 0; i < size; i++)
+			for (int j = 0; j < size; j++)
+				sat.addClause(table[i * size + j], -table[j * size + i]);
 
-	private void transitive() {
+		// transitive
 		for (int i = 0; i < size; i++)
 			for (int j = 0; j < size; j++)
 				for (int k = 0; k < size; k++)
@@ -75,23 +72,37 @@ public class Validate {
 		return a;
 	}
 
-	public void run() {
+	public static void run(String name) {
+		System.out.print(name + ": ");
+
+		Solver sat;
+		try {
+			if (name.equals("MiniSat"))
+				sat = new JMiniSat();
+			else if (name.equals("PicoSat"))
+				sat = new JPicoSat();
+			else
+				throw new IllegalArgumentException();
+		} catch (UnsatisfiedLinkError e) {
+			System.out.println("not available");
+			return;
+		}
+
 		long time = System.currentTimeMillis();
-
-		generate();
-		reflexive();
-		antisymm();
-		transitive();
-		int a = findall();
-
+		Validate validate = new Validate(sat, 8);
+		validate.generate();
+		int count = validate.findall();
 		time = System.currentTimeMillis() - time;
-		System.out.println("Number of " + size + "-element posets: " + a);
-		System.out.println("Elapsed time: " + time + " milliseconds");
+
+		if (count != 4140)
+			System.out.println("incorrect answer " + count);
+		else
+			System.out.println(time + " milliseconds");
 	}
 
 	public static void main(String[] args) {
-		Solver s = new JMiniSat();
-		Validate verify = new Validate(s, 5);
-		verify.run();
+		System.out.println("Calculating the 8th Bell number (4140 solutions)");
+		run("MiniSat");
+		run("PicoSat");
 	}
 }
