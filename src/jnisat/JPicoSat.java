@@ -79,13 +79,14 @@ public class JPicoSat extends Solver {
 
 	@Override
 	public int addVariable() {
-		return picosat_inc_max_var(handle, (byte) 0);
+		return picosat_inc_max_var(handle, 0);
 	}
 
 	@Override
-	public int addVariable(byte policy) {
-		byte phase = policy == POLICY_FALSE ? (byte) -1
-				: policy == POLICY_TRUE ? (byte) 1 : (byte) 0;
+	public int addVariable(int flags) {
+		flags &= FLAG_TRY_TRUE | FLAG_TRY_FALSE;
+		int phase = flags == FLAG_TRY_TRUE ? PHASE_POSITIVE
+				: flags == FLAG_TRY_FALSE ? PHASE_NEGATIVE : PHASE_DEFAULT;
 		return picosat_inc_max_var(handle, phase);
 	}
 
@@ -117,10 +118,6 @@ public class JPicoSat extends Solver {
 		picosat_add(handle, 0);
 	}
 
-	protected static final int PICOSAT_UNKNOWN = 0;
-	protected static final int PICOSAT_SATISFIABLE = 10;
-	protected static final int PICOSAT_UNSATISFIABLE = 20;
-
 	@Override
 	public boolean solve() {
 		int a = picosat_sat(handle, -1);
@@ -145,9 +142,17 @@ public class JPicoSat extends Solver {
 
 	protected static native void picosat_reset(long handle);
 
-	protected static native int picosat_inc_max_var(long handle, byte phase);
+	protected final static int PHASE_POSITIVE = 1;
+	protected final static int PHASE_DEFAULT = 0;
+	protected final static int PHASE_NEGATIVE = -1;
+
+	protected static native int picosat_inc_max_var(long handle, int phase);
 
 	protected static native int picosat_add(long handle, int lit);
+
+	protected static final int PICOSAT_UNKNOWN = 0;
+	protected static final int PICOSAT_SATISFIABLE = 10;
+	protected static final int PICOSAT_UNSATISFIABLE = 20;
 
 	protected static native int picosat_sat(long handle, int decision_limit);
 

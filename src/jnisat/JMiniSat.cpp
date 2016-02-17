@@ -45,8 +45,10 @@ JNIEXPORT void JNICALL Java_jnisat_JMiniSat_minisat_1dtor
 }
 
 JNIEXPORT jint JNICALL Java_jnisat_JMiniSat_minisat_1new_1var(JNIEnv *env,
-		jclass cls, jlong handle, jbyte policy) {
-	int v = decode(handle)->newVar(Minisat::lbool((uint8_t) policy));
+		jclass cls, jlong handle, jbyte polarity, jboolean eliminate) {
+	int v = decode(handle)->newVar(Minisat::lbool((uint8_t) polarity));
+	if (!eliminate)
+		decode(handle)->setFrozen(v, true);
 	return (jint)(1 + v);
 }
 
@@ -85,13 +87,18 @@ JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1add_1clause__J_3I(
 }
 
 JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1solve(JNIEnv *env,
-		jclass cls, jlong handle, jboolean simplify) {
-	return decode(handle)->solve((bool) simplify);
+		jclass cls, jlong handle, jboolean simplify, jboolean turnoff) {
+	return decode(handle)->solve((bool) simplify, (bool) turnoff);
+}
+
+JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1simplify(JNIEnv *env,
+		jclass cls, jlong handle) {
+	return decode(handle)->simplify();
 }
 
 JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1eliminate(JNIEnv *env,
-		jclass cls, jlong handle) {
-	return decode(handle)->eliminate();
+		jclass cls, jlong handle, jboolean turnoff) {
+	return decode(handle)->eliminate((bool) turnoff);
 }
 
 JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1is_1eliminated(

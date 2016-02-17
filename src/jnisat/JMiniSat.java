@@ -29,15 +29,29 @@ public class JMiniSat extends Solver {
 
 	protected long handle;
 	protected boolean solvable;
+	protected int simplify;
+
+	protected static final int SIMPLIFY_NEVER = 0;
+	protected static final int SIMPLIFY_ONCE = 1;
+	protected static final int SIMPLIFY_ALWAYS = 1;
 
 	/**
-	 * Constructs a new MiniSAT instance and reserves some memory.
+	 * Constructs a new MiniSAT instance with the given simplification method;
 	 */
-	public JMiniSat() {
+	public JMiniSat(int simplify) {
 		handle = minisat_ctor();
-		solvable = false;
 		if (handle == 0)
 			throw new OutOfMemoryError();
+
+		solvable = false;
+		this.simplify = simplify;
+	}
+
+	/**
+	 * Constructs a new MiniSAT instance
+	 */
+	public JMiniSat() {
+		this(SIMPLIFY_ONCE);
 	}
 
 	@Override
@@ -55,8 +69,17 @@ public class JMiniSat extends Solver {
 	}
 
 	@Override
-	public int addVariable(byte policy) {
-		return minisat_new_var(handle, policy);
+	public int addVariable() {
+		return minisat_new_var(handle, LBOOL_UNDEF, false);
+	}
+
+	@Override
+	public int addVariable(int flags) {
+		boolean eliminate = (flags & FLAG_ELIMINATE) != 0;
+		flags &= FLAG_TRY_TRUE | FLAG_TRY_FALSE;
+		byte polarity = flags == FLAG_TRY_TRUE ? LBOOL_TRUE
+				: flags == FLAG_TRY_FALSE ? LBOOL_FALSE : LBOOL_UNDEF;
+		return minisat_new_var(handle, polarity, eliminate);
 	}
 
 	@Override
@@ -81,7 +104,13 @@ public class JMiniSat extends Solver {
 
 	@Override
 	public boolean solve() {
-		solvable = minisat_solve(handle, true);
+		if (simplify == SIMPLIFY_ONCE) {
+			solvable = minisat_solve(handle, true, true);
+			simplify = SIMPLIFY_NEVER;
+		} else if (simplify == SIMPLIFY_ALWAYS)
+			solvable = minisat_solve(handle, true, false);
+		else
+			solvable = minisat_solve(handle, false, true);
 		return solvable;
 	}
 
@@ -89,8 +118,8 @@ public class JMiniSat extends Solver {
 	public int getValue(int literal) {
 		assert solvable;
 		byte a = minisat_model_value(handle, literal);
-		assert a == 0 || a == 1;
-		return a == 0 ? 1 : -1;
+		assert a == LBOOL_FALSE || a == LBOOL_TRUE;
+		return a == LBOOL_TRUE ? 1 : -1;
 	}
 
 	protected static native long minisat_ctor();
@@ -98,7 +127,7 @@ public class JMiniSat extends Solver {
 	protected static native void minisat_dtor(long handle);
 
 	protected static native int minisat_new_var(long handle, byte polarity,
-			boolean eliminate);
+			boolean frozen);
 
 	protected static native boolean minisat_add_clause(long handle, int lit);
 
@@ -110,32 +139,21 @@ public class JMiniSat extends Solver {
 
 	protected static native boolean minisat_add_clause(long handle, int[] lits);
 
-	protected static native boolean minisat_solve(long handle, boolean simplify);
+	protected static native boolean minisat_solve(long handle,
+			boolean simplify, boolean turnoff);
 
-	protected static native boolean minisat_eliminate(long handle);
+	protected static native boolean minisat_simplify(long handle);
+
+	protected static native boolean minisat_eliminate(long handle,
+			boolean turnoff);
 
 	protected static native boolean minisat_is_eliminated(long handle, int lit);
 
 	protected static native boolean minisat_okay(long handle);
 
-	protected static native byte minisat_model_value(long handle, int lit);
+	protected static final byte LBOOL_TRUE = 0;
+	protected static final byte LBOOL_FALSE = 1;
+	protected static final byte LBOOL_UNDEF = 2;
 
-	public static void main(String[] args) {
-		JMiniSat sat = new JMiniSat();
-		System.out.println(sat.addVariable());
-		System.out.println(sat.addVariable());
-		sat.addClause(1, 2);
-		System.out.println(JMiniSat.minisat_is_eliminated(sat.handle, 1));
-		System.out.println(JMiniSat.minisat_is_eliminated(sat.handle, 2));
-		System.out.println(sat.solve());
-		System.out.println(JMiniSat.minisat_is_eliminated(sat.handle, 1));
-		System.out.println(JMiniSat.minisat_is_eliminated(sat.handle, 2));
-		System.out.println();
-		sat.addClause(1, -2);
-		System.out.println(sat.solve());
-		sat.addClause(-1, 2);
-		System.out.println(sat.solve());
-		sat.addClause(-1, -2);
-		System.out.println(sat.solve());
-	}
+	protected static native byte minisat_model_value(long handle, int lit);
 }

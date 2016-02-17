@@ -56,7 +56,7 @@ JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1reset
 }
 
 JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1inc_1max_1var(JNIEnv *env,
-		jclass cls, jlong handle, jbyte phase) {
+		jclass cls, jlong handle, jint phase) {
 	int lit = picosat_inc_max_var(decode(handle));
 	if (phase != 0)
 		picosat_set_default_phase_lit(decode(handle), lit, phase);

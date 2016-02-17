@@ -29,49 +29,44 @@ public abstract class Solver {
 	public abstract void reset();
 
 	/**
-	 * The variable cannot be eliminated, and no polarity set.
+	 * If the variable because a decision variable, then try the true value
+	 * first.
 	 */
-	public static final byte POLICY_DEFAULT = 0;
+	public static final int FLAG_TRY_TRUE = 0x01;
 
 	/**
-	 * The variable cannot be eliminated, and polarity is set to true (that
-	 * value will be tried first under decision).
+	 * If the variable becomes a decision variable, then try the false value
+	 * first.
 	 */
-	public static final byte POLICY_TRUE = 1;
+	public static final int FLAG_TRY_FALSE = 0x02;
 
 	/**
-	 * The variable cannot be eliminated, and polarity is set to false (that
-	 * value will be tried first under decision).
+	 * The variable can be eliminated by the solver (will not be mentioned in
+	 * new clauses after the first solve).
 	 */
-	public static final byte POLICY_FALSE = 2;
+	public static final int FLAG_ELIMINATE = 0x04;
 
 	/**
-	 * The variable can be eliminated (should not be used after the first solve
-	 * command), and but no polarity is set.
-	 */
-	public static final byte POLICY_ELIMINATE = 3;
-
-	/**
-	 * Adds a new variable to the solver with the given policy.
-	 *
+	 * Adds a new variable to the solver with the given special flags.
+	 * 
 	 * @param policy
 	 *            one of the policy constants
 	 * @return the positive literal of the new variable
 	 */
-	public abstract int addVariable(byte policy);
+	public abstract int addVariable(int flags);
 
 	/**
 	 * Adds a new variable to the solver.
-	 *
+	 * 
 	 * @return the positive literal of the new variable
 	 */
 	public int addVariable() {
-		return addVariable(POLICY_DEFAULT);
+		return addVariable(0);
 	}
 
 	/**
 	 * Adds a single literal clause to the solver.
-	 *
+	 * 
 	 * @param lit
 	 *            the literal to be added
 	 */
@@ -79,7 +74,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a two literal clause to the solver.
-	 *
+	 * 
 	 * @param lit1
 	 *            the first literal of the clause
 	 * @param lit2
@@ -90,7 +85,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a three literal clause to the solver.
-	 *
+	 * 
 	 * @param lit1
 	 *            the first literal of the clause
 	 * @param lit2
@@ -102,7 +97,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a new clause to the solver.
-	 *
+	 * 
 	 * @param literals
 	 *            the list of literals (positive or negative variable indices)
 	 *            of the new clause
@@ -111,14 +106,14 @@ public abstract class Solver {
 
 	/**
 	 * Solves the currently added variables and clauses.
-	 *
+	 * 
 	 * @return <code>true</code> if the instance is solvable
 	 */
 	public abstract boolean solve();
 
 	/**
 	 * Queries the value of a literal in the solution.
-	 *
+	 * 
 	 * @param literal
 	 *            the index of the variable to be queried
 	 * @return positive if the literal is true, negative if the literal is false
