@@ -70,6 +70,7 @@
 
 	<target name="jar" depends="build" description="builds the jnisat.jar file">
 		<jar destfile="jnisat.jar" includes="" compress="true">
+			<fileset dir="src" includes="**/*.java" />
 			<fileset dir="build" includes="**/*.class" />
 			<fileset dir="lib" includes="*.so" />
 			<fileset file="LICENSE" />
