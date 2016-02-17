@@ -27,8 +27,8 @@ public class JMiniSat extends Solver {
 		LibDetect.loadLibrary("minisat");
 	}
 
-	private long handle;
-	private boolean solvable;
+	protected long handle;
+	protected boolean solvable;
 
 	/**
 	 * Constructs a new MiniSAT instance and reserves some memory.
@@ -55,77 +55,82 @@ public class JMiniSat extends Solver {
 	}
 
 	@Override
-	public int addVariable() {
-		return minisat_newvar(handle, LBOOL_UNDEF);
+	public int addVariable(byte policy) {
+		return minisat_new_var(handle, policy);
 	}
 
 	@Override
 	public void addClause(int lit) {
-		solvable = minisat_addclause(handle, lit);
+		solvable = minisat_add_clause(handle, lit);
 	}
 
 	@Override
 	public void addClause(int lit1, int lit2) {
-		solvable = minisat_addclause(handle, lit1, lit2);
+		solvable = minisat_add_clause(handle, lit1, lit2);
 	}
 
 	@Override
 	public void addClause(int lit1, int lit2, int lit3) {
-		solvable = minisat_addclause(handle, lit1, lit2, lit3);
+		solvable = minisat_add_clause(handle, lit1, lit2, lit3);
 	}
 
 	@Override
 	public void addClause(int... literals) {
-		solvable = minisat_addclause(handle, literals);
+		solvable = minisat_add_clause(handle, literals);
 	}
 
 	@Override
 	public boolean solve() {
-		solvable = minisat_solve(handle, false);
+		solvable = minisat_solve(handle, true);
 		return solvable;
 	}
 
 	@Override
 	public int getValue(int literal) {
 		assert solvable;
-		byte a = minisat_value(handle, literal);
-		return a == LBOOL_TRUE ? 1 : a == LBOOL_FALSE ? -1 : 0;
+		byte a = minisat_model_value(handle, literal);
+		assert a == 0 || a == 1;
+		return a == 0 ? 1 : -1;
 	}
 
-	private static native long minisat_ctor();
+	protected static native long minisat_ctor();
 
-	private static native void minisat_dtor(long handle);
+	protected static native void minisat_dtor(long handle);
 
-	private static final byte LBOOL_TRUE = 0;
-	private static final byte LBOOL_FALSE = 1;
-	private static final byte LBOOL_UNDEF = 2;
+	protected static native int minisat_new_var(long handle, byte polarity,
+			boolean eliminate);
 
-	private static native int minisat_newvar(long handle, byte policy);
+	protected static native boolean minisat_add_clause(long handle, int lit);
 
-	private static native boolean minisat_addclause(long handle, int lit);
-
-	private static native boolean minisat_addclause(long handle, int lit1,
+	protected static native boolean minisat_add_clause(long handle, int lit1,
 			int lit2);
 
-	private static native boolean minisat_addclause(long handle, int lit1,
+	protected static native boolean minisat_add_clause(long handle, int lit1,
 			int lit2, int lit3);
 
-	private static native boolean minisat_addclause(long handle, int[] lits);
+	protected static native boolean minisat_add_clause(long handle, int[] lits);
 
-	private static native boolean minisat_solve(long handle, boolean simplify);
+	protected static native boolean minisat_solve(long handle, boolean simplify);
 
-	private static native boolean minisat_eliminate(long handle);
+	protected static native boolean minisat_eliminate(long handle);
 
-	private static native boolean minisat_okay(long handle);
+	protected static native boolean minisat_is_eliminated(long handle, int lit);
 
-	private static native byte minisat_value(long handle, int lit);
+	protected static native boolean minisat_okay(long handle);
+
+	protected static native byte minisat_model_value(long handle, int lit);
 
 	public static void main(String[] args) {
-		Solver sat = new JMiniSat();
+		JMiniSat sat = new JMiniSat();
 		System.out.println(sat.addVariable());
 		System.out.println(sat.addVariable());
 		sat.addClause(1, 2);
+		System.out.println(JMiniSat.minisat_is_eliminated(sat.handle, 1));
+		System.out.println(JMiniSat.minisat_is_eliminated(sat.handle, 2));
 		System.out.println(sat.solve());
+		System.out.println(JMiniSat.minisat_is_eliminated(sat.handle, 1));
+		System.out.println(JMiniSat.minisat_is_eliminated(sat.handle, 2));
+		System.out.println();
 		sat.addClause(1, -2);
 		System.out.println(sat.solve());
 		sat.addClause(-1, 2);

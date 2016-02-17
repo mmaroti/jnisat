@@ -29,11 +29,45 @@ public abstract class Solver {
 	public abstract void reset();
 
 	/**
+	 * The variable cannot be eliminated, and no polarity set.
+	 */
+	public static final byte POLICY_DEFAULT = 0;
+
+	/**
+	 * The variable cannot be eliminated, and polarity is set to true (that
+	 * value will be tried first under decision).
+	 */
+	public static final byte POLICY_TRUE = 1;
+
+	/**
+	 * The variable cannot be eliminated, and polarity is set to false (that
+	 * value will be tried first under decision).
+	 */
+	public static final byte POLICY_FALSE = 2;
+
+	/**
+	 * The variable can be eliminated (should not be used after the first solve
+	 * command), and but no polarity is set.
+	 */
+	public static final byte POLICY_ELIMINATE = 3;
+
+	/**
+	 * Adds a new variable to the solver with the given policy.
+	 *
+	 * @param policy
+	 *            one of the policy constants
+	 * @return the positive literal of the new variable
+	 */
+	public abstract int addVariable(byte policy);
+
+	/**
 	 * Adds a new variable to the solver.
 	 *
-	 * @return the index of the new variable
+	 * @return the positive literal of the new variable
 	 */
-	public abstract int addVariable();
+	public int addVariable() {
+		return addVariable(POLICY_DEFAULT);
+	}
 
 	/**
 	 * Adds a single literal clause to the solver.

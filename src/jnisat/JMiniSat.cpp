@@ -44,7 +44,7 @@ JNIEXPORT void JNICALL Java_jnisat_JMiniSat_minisat_1dtor
 	delete decode(handle);
 }
 
-JNIEXPORT jint JNICALL Java_jnisat_JMiniSat_minisat_1newvar(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_jnisat_JMiniSat_minisat_1new_1var(JNIEnv *env,
 		jclass cls, jlong handle, jbyte policy) {
 	int v = decode(handle)->newVar(Minisat::lbool((uint8_t) policy));
 	return (jint)(1 + v);
@@ -54,24 +54,24 @@ static inline Minisat::Lit convert(int lit) {
 	return Minisat::toLit(lit > 0 ? (lit << 1) - 2 : ((-lit) << 1) - 1);
 }
 
-JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1addclause__JI(
+JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1add_1clause__JI(
 		JNIEnv *env, jclass cls, jlong handle, jint lit) {
-	return (jboolean) decode(handle)->addClause(convert(lit));
+	return decode(handle)->addClause(convert(lit));
 }
 
-JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1addclause__JII(
+JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1add_1clause__JII(
 		JNIEnv *env, jclass cls, jlong handle, jint lit1, jint lit2) {
-	return (jboolean) decode(handle)->addClause(convert(lit1), convert(lit2));
+	return decode(handle)->addClause(convert(lit1), convert(lit2));
 }
 
-JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1addclause__JIII(
+JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1add_1clause__JIII(
 		JNIEnv *env, jclass cls, jlong handle, jint lit1, jint lit2,
 		jint lit3) {
-	return (jboolean) decode(handle)->addClause(convert(lit1), convert(lit2),
+	return decode(handle)->addClause(convert(lit1), convert(lit2),
 			convert(lit3));
 }
 
-JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1addclause__J_3I(
+JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1add_1clause__J_3I(
 		JNIEnv *env, jclass cls, jlong handle, jintArray lits) {
 	jint len = env->GetArrayLength(lits);
 	Minisat::vec < Minisat::Lit > vec(len);
@@ -81,20 +81,31 @@ JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1addclause__J_3I(
 		vec[i] = convert(p[i]);
 	env->ReleasePrimitiveArrayCritical(lits, p, 0);
 
-	return (jboolean) decode(handle)->addClause_(vec);
+	return decode(handle)->addClause_(vec);
 }
 
 JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1solve(JNIEnv *env,
 		jclass cls, jlong handle, jboolean simplify) {
-	return (jboolean) decode(handle)->solve((bool) simplify);
+	return decode(handle)->solve((bool) simplify);
 }
 
 JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1eliminate(JNIEnv *env,
 		jclass cls, jlong handle) {
-	return (jboolean) decode(handle)->eliminate();
+	return decode(handle)->eliminate();
 }
 
-JNIEXPORT jbyte JNICALL Java_jnisat_JMiniSat_minisat_1value(JNIEnv *env,
+JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1is_1eliminated(
+		JNIEnv *env, jclass cls, jlong handle, jint lit) {
+	int v = lit > 0 ? lit - 1 : -lit - 1;
+	return decode(handle)->isEliminated(v);
+}
+
+JNIEXPORT jboolean JNICALL Java_jnisat_JMiniSat_minisat_1okay(JNIEnv *env,
+		jclass cls, jlong handle) {
+	return decode(handle)->okay();
+}
+
+JNIEXPORT jbyte JNICALL Java_jnisat_JMiniSat_minisat_1model_1value(JNIEnv *env,
 		jclass cls, jlong handle, jint lit) {
 	return (jbyte) Minisat::toInt(decode(handle)->modelValue(convert(lit)));
 }

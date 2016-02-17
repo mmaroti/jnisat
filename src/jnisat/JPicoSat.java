@@ -50,8 +50,8 @@ public class JPicoSat extends Solver {
 		return picosat_api_version();
 	}
 
-	private long handle;
-	private boolean solvable;
+	protected long handle;
+	protected boolean solvable;
 
 	/**
 	 * Constructs a new PicoSAT instance and reserves some memory.
@@ -79,7 +79,14 @@ public class JPicoSat extends Solver {
 
 	@Override
 	public int addVariable() {
-		return picosat_inc_max_var(handle);
+		return picosat_inc_max_var(handle, (byte) 0);
+	}
+
+	@Override
+	public int addVariable(byte policy) {
+		byte phase = policy == POLICY_FALSE ? (byte) -1
+				: policy == POLICY_TRUE ? (byte) 1 : (byte) 0;
+		return picosat_inc_max_var(handle, phase);
 	}
 
 	@Override
@@ -110,9 +117,9 @@ public class JPicoSat extends Solver {
 		picosat_add(handle, 0);
 	}
 
-	private static final int PICOSAT_UNKNOWN = 0;
-	private static final int PICOSAT_SATISFIABLE = 10;
-	private static final int PICOSAT_UNSATISFIABLE = 20;
+	protected static final int PICOSAT_UNKNOWN = 0;
+	protected static final int PICOSAT_SATISFIABLE = 10;
+	protected static final int PICOSAT_UNSATISFIABLE = 20;
 
 	@Override
 	public boolean solve() {
@@ -130,19 +137,19 @@ public class JPicoSat extends Solver {
 		return picosat_deref(handle, literal);
 	}
 
-	private static native String picosat_version();
+	protected static native String picosat_version();
 
-	private static native int picosat_api_version();
+	protected static native int picosat_api_version();
 
-	private static native long picosat_init();
+	protected static native long picosat_init();
 
-	private static native void picosat_reset(long handle);
+	protected static native void picosat_reset(long handle);
 
-	private static native int picosat_inc_max_var(long handle);
+	protected static native int picosat_inc_max_var(long handle, byte phase);
 
-	private static native int picosat_add(long handle, int lit);
+	protected static native int picosat_add(long handle, int lit);
 
-	private static native int picosat_sat(long handle, int decision_limit);
+	protected static native int picosat_sat(long handle, int decision_limit);
 
-	private static native int picosat_deref(long handle, int lit);
+	protected static native int picosat_deref(long handle, int lit);
 }
