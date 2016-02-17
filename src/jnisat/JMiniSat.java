@@ -28,12 +28,14 @@ public class JMiniSat extends Solver {
 	}
 
 	private long handle;
+	private boolean solvable;
 
 	/**
 	 * Constructs a new MiniSAT instance and reserves some memory.
 	 */
 	public JMiniSat() {
 		handle = minisat_ctor();
+		solvable = false;
 		if (handle == 0)
 			throw new OutOfMemoryError();
 	}
@@ -59,31 +61,33 @@ public class JMiniSat extends Solver {
 
 	@Override
 	public void addClause(int lit) {
-		minisat_addclause(handle, lit);
+		solvable = minisat_addclause(handle, lit);
 	}
 
 	@Override
 	public void addClause(int lit1, int lit2) {
-		minisat_addclause(handle, lit1, lit2);
+		solvable = minisat_addclause(handle, lit1, lit2);
 	}
 
 	@Override
 	public void addClause(int lit1, int lit2, int lit3) {
-		minisat_addclause(handle, lit1, lit2, lit3);
+		solvable = minisat_addclause(handle, lit1, lit2, lit3);
 	}
 
 	@Override
 	public void addClause(int... literals) {
-		minisat_addclause(handle, literals);
+		solvable = minisat_addclause(handle, literals);
 	}
 
 	@Override
 	public boolean solve() {
-		return minisat_solve(handle, false);
+		solvable = minisat_solve(handle, false);
+		return solvable;
 	}
 
 	@Override
 	public int getValue(int literal) {
+		assert solvable;
 		byte a = minisat_value(handle, literal);
 		return a == LBOOL_TRUE ? 1 : a == LBOOL_FALSE ? -1 : 0;
 	}

@@ -51,12 +51,14 @@ public class JPicoSat extends Solver {
 	}
 
 	private long handle;
+	private boolean solvable;
 
 	/**
 	 * Constructs a new PicoSAT instance and reserves some memory.
 	 */
 	public JPicoSat() {
 		handle = picosat_init();
+		solvable = false;
 		if (handle == 0)
 			throw new OutOfMemoryError();
 	}
@@ -118,11 +120,13 @@ public class JPicoSat extends Solver {
 		if (a != PICOSAT_SATISFIABLE && a != PICOSAT_UNSATISFIABLE)
 			throw new IllegalStateException();
 
-		return a == PICOSAT_SATISFIABLE;
+		solvable = a == PICOSAT_SATISFIABLE;
+		return solvable;
 	}
 
 	@Override
 	public int getValue(int literal) {
+		assert solvable;
 		return picosat_deref(handle, literal);
 	}
 
