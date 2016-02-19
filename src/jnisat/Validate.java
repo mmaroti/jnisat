@@ -73,7 +73,7 @@ public class Validate {
 	}
 
 	public static void run(String name) {
-		System.out.print(name + ": ");
+		System.out.print(name + ": \t");
 
 		Solver sat;
 		try {
@@ -81,9 +81,11 @@ public class Validate {
 				sat = new JMiniSat();
 			else if (name.equals("picosat"))
 				sat = new JPicoSat();
+			// else if (name.equals("sat4j"))
+			// sat = new Sat4J();
 			else
 				throw new IllegalArgumentException();
-		} catch (UnsatisfiedLinkError e) {
+		} catch (LinkageError e) {
 			System.out.println("not available");
 			return;
 		}
@@ -104,5 +106,6 @@ public class Validate {
 		System.out.println("Calculating the 8th Bell number (4140 solutions)");
 		run("minisat");
 		run("picosat");
+		// run("sat4j");
 	}
 }

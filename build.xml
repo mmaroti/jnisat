@@ -8,7 +8,9 @@
 
 	<target name="build" description="compiles the java files">
 		<mkdir dir="build" />
-		<javac srcdir="src" destdir="build" classpath="build" includeantruntime="false" />
+		<javac srcdir="src" destdir="build" classpath="build" includeantruntime="false">
+			<exclude name="jnisat/Sat4J.java" />
+		</javac>
 		<javah destdir="build" force="yes" classpath="build">
 			<class name="jnisat.JPicoSat" />
 			<class name="jnisat.JMiniSat" />
@@ -22,7 +24,7 @@
 		<mkdir dir="build/${jnisat.libdir}" />
 	</target>
 
-	<target name="picosat" depends="libdir" description="compiles the jpicosat library">
+	<target name="picosat" depends="libdir" description="compiles the jpicosat adapter">
 		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jpicosat">
 			<arg value="libname" />
 			<arg value="jpicosat" />
@@ -44,7 +46,7 @@
 		<move file="build/${jnisat.jpicosat}" todir="lib/${jnisat.libdir}" />
 	</target>
 
-	<target name="minisat" depends="libdir" description="compiles the jpicosat library">
+	<target name="minisat" depends="libdir" description="compiles the jpicosat adapter">
 		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jminisat">
 			<arg value="libname" />
 			<arg value="jminisat" />
@@ -66,11 +68,22 @@
 		<move file="build/${jnisat.jminisat}" todir="lib/${jnisat.libdir}" />
 	</target>
 
+	<target name="sat4j" depends="build" description="compiles the sat4j adapter">
+		<path id="cp">
+			<pathelement path="/usr/share/java/org.sat4j.core.jar" />
+			<pathelement path="build" />
+		</path>
+		<javac srcdir="src" destdir="build" classpathref="cp" includeantruntime="false">
+			<include name="jnisat/Sat4J.java" />
+		</javac>
+	</target>
+
 	<target name="jar" depends="build" description="builds the jnisat.jar file">
 		<jar destfile="jnisat.jar" includes="" compress="true">
 			<fileset dir="src" includes="**/*.java" />
 			<fileset dir="build" includes="**/*.class" />
 			<fileset dir="" includes="lib/**/*.so" />
+			<fileset dir="" includes="lib/**/*.dll" />
 			<fileset file="LICENSE" />
 			<fileset file="README.md" />
 			<manifest>
