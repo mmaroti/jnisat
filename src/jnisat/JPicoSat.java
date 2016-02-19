@@ -24,7 +24,7 @@ package jnisat;
 
 public class JPicoSat extends Solver {
 	static {
-		LibDetect.loadLibrary("picosat");
+		LibDetect.loadLibrary("jpicosat");
 
 		int pv = getVersion();
 		int av = getApiVersion();

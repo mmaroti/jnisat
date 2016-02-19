@@ -15,26 +15,18 @@
 		</javah>
 	</target>
 
-	<target name="detect" depends="build">
-		<echo message="os.name: ${os.name}" />
-		<echo message="os.arch: ${os.arch}" />
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.suffix">
-			<arg value="suffix" />
+	<target name="libdir" depends="build">
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.libdir">
+			<arg value="libdir" />
 		</java>
-		<echo message="jnisat.suffix: ${jnisat.suffix}" />
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.picosat" fork="true">
-			<arg value="testlib" />
-			<arg value="picosat" />
-		</java>
-		<echo message="jnisat.picosat: ${jnisat.picosat}" />
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.minisat" fork="true">
-			<arg value="testlib" />
-			<arg value="minisat" />
-		</java>
-		<echo message="jnisat.minisat: ${jnisat.minisat}" />
+		<mkdir dir="build/${jnisat.libdir}" />
 	</target>
 
-	<target name="picosat" depends="detect" description="compiles the jpicosat library">
+	<target name="picosat" depends="libdir" description="compiles the jpicosat library">
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jpicosat">
+			<arg value="libname" />
+			<arg value="jpicosat" />
+		</java>
 		<exec executable="gcc" os="Linux" dir="build" failonerror="true">
 			<arg value="-Wall" />
 			<arg value="-O3" />
@@ -47,12 +39,16 @@
 			<arg value="../src/jnisat/JPicoSat.c" />
 			<arg value="-lpicosat" />
 			<arg value="-o" />
-			<arg value="jpicosat-${jnisat.suffix}" />
+			<arg value="${jnisat.jpicosat}" />
 		</exec>
-		<move file="build/jpicosat-${jnisat.suffix}" todir="lib" />
+		<move file="build/${jnisat.jpicosat}" todir="lib/${jnisat.libdir}" />
 	</target>
 
-	<target name="minisat" depends="detect" description="compiles the jpicosat library">
+	<target name="minisat" depends="libdir" description="compiles the jpicosat library">
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jminisat">
+			<arg value="libname" />
+			<arg value="jminisat" />
+		</java>
 		<exec executable="g++" os="Linux" dir="build" failonerror="true">
 			<arg value="-Wall" />
 			<arg value="-O3" />
@@ -65,16 +61,16 @@
 			<arg value="../src/jnisat/JMiniSat.cpp" />
 			<arg value="-lminisat" />
 			<arg value="-o" />
-			<arg value="jminisat-${jnisat.suffix}" />
+			<arg value="${jnisat.jminisat}" />
 		</exec>
-		<move file="build/jminisat-${jnisat.suffix}" todir="lib" />
+		<move file="build/${jnisat.jminisat}" todir="lib/${jnisat.libdir}" />
 	</target>
 
 	<target name="jar" depends="build" description="builds the jnisat.jar file">
 		<jar destfile="jnisat.jar" includes="" compress="true">
 			<fileset dir="src" includes="**/*.java" />
 			<fileset dir="build" includes="**/*.class" />
-			<fileset dir="lib" includes="*.so" />
+			<fileset dir="" includes="lib/**/*.so" />
 			<fileset file="LICENSE" />
 			<fileset file="README.md" />
 			<manifest>
@@ -82,6 +78,10 @@
 				<attribute name="Class-Path" value="." />
 			</manifest>
 		</jar>
+	</target>
+
+	<target name="detect" depends="jar">
+		<java classname="jnisat.LibDetect" classpath="jnisat.jar" fork="true" />
 	</target>
 
 	<target name="validate" depends="jar" description="runs the validation program">

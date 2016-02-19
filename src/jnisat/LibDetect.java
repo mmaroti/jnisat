@@ -25,22 +25,18 @@ package jnisat;
 import java.io.*;
 
 public class LibDetect {
-	private static String getLibrarySuffix() {
-		String os;
+	private static String getLibDir() {
+		String name;
 		String arch;
-		String ext;
 
 		String osname = System.getProperty("os.name");
-		if (osname.startsWith("Linux")) {
-			os = "linux";
-			ext = "so";
-		} else if (osname.startsWith("Windows")) {
-			os = "win";
-			ext = "dll";
-		} else if (osname.startsWith("Mac OS") || osname.startsWith("Darwin")) {
-			os = "osx";
-			ext = "dylib";
-		} else
+		if (osname.startsWith("Linux"))
+			name = "linux";
+		else if (osname.startsWith("Windows"))
+			name = "win";
+		else if (osname.startsWith("Mac OS X") || osname.startsWith("Darwin"))
+			name = "osx";
+		else
 			return "unknown";
 
 		String osarch = System.getProperty("os.arch");
@@ -51,32 +47,31 @@ public class LibDetect {
 		else
 			return "unknown";
 
-		return os + arch + "." + ext;
+		return name + arch;
 	}
 
-	public final static String LIBRARY_SUFFIX = getLibrarySuffix();
+	private static final String LIBDIR = getLibDir();
 
 	public static void loadLibrary(String name) {
-		name = "j" + name + "-" + LIBRARY_SUFFIX;
-		InputStream is = Solver.class.getResourceAsStream("/" + name);
-		if (is == null)
-			throw new UnsatisfiedLinkError("Could not find " + name
-					+ " inside the JAR");
-
-		File temp;
-		OutputStream os;
-
 		try {
-			int i = name.lastIndexOf('.');
-			temp = File.createTempFile(name.substring(0, i) + "-",
-					name.substring(i));
+			String libname = System.mapLibraryName(name);
+			String fullname = "/lib/" + LIBDIR + "/" + libname;
+			InputStream is = LibDetect.class.getResourceAsStream(fullname);
+			if (is == null)
+				throw new FileNotFoundException(fullname
+						+ " not found inside JAR");
+
+			File temp;
+			OutputStream os;
+
+			int i = libname.lastIndexOf('.');
+			if (i < 0)
+				i = libname.length();
+			temp = File.createTempFile(libname.substring(0, i) + "-",
+					libname.substring(i));
 			temp.deleteOnExit();
 			os = new FileOutputStream(temp);
-		} catch (IOException e) {
-			throw new UnsatisfiedLinkError(e.getMessage());
-		}
 
-		try {
 			try {
 				byte[] buffer = new byte[4096];
 				int count;
@@ -88,31 +83,37 @@ public class LibDetect {
 				os.close();
 				is.close();
 			}
-		} catch (IOException e) {
+
+			System.load(temp.getAbsolutePath());
+		} catch (Exception e) {
 			throw new UnsatisfiedLinkError(e.getMessage());
 		}
-
-		System.load(temp.getAbsolutePath());
 	}
 
 	private static String testLibrary(String name) {
 		try {
 			System.loadLibrary(name);
 			return "installed";
-		} catch (UnsatisfiedLinkError e) {
-			return "not found";
+		} catch (UnsatisfiedLinkError e1) {
+			Object url = LibDetect.class.getResource("/lib/" + LIBDIR + "/"
+					+ System.mapLibraryName(name));
+			return url != null ? "found in jar" : "not found";
 		}
 	}
 
 	public static void main(String[] args) {
-		if (args.length == 1 && args[0].equals("suffix"))
-			System.out.println(LIBRARY_SUFFIX);
+		if (args.length == 1 && args[0].equals("libdir"))
+			System.out.println(LIBDIR);
 		else if (args.length == 2 && args[0].equals("testlib"))
 			System.out.println(testLibrary(args[1]));
+		else if (args.length == 2 && args[0].equals("libname"))
+			System.out.println(System.mapLibraryName(args[1]));
 		else {
-			System.out.println("suffix: " + LIBRARY_SUFFIX);
-			System.out.println("picosat: " + testLibrary("picosat"));
-			System.out.println("minisat: " + testLibrary("minisat"));
+			System.out.println("libdir:  " + LIBDIR);
+			System.out.println("picosat: native " + testLibrary("picosat")
+					+ ", adapter " + testLibrary("jpicosat"));
+			System.out.println("minisat: native " + testLibrary("minisat")
+					+ ", adapter " + testLibrary("jminisat"));
 		}
 	}
 }

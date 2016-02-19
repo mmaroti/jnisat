@@ -24,7 +24,7 @@ package jnisat;
 
 public class JMiniSat extends Solver {
 	static {
-		LibDetect.loadLibrary("minisat");
+		LibDetect.loadLibrary("jminisat");
 	}
 
 	protected long handle;
