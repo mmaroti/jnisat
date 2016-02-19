@@ -1,0 +1,9 @@
+language: java
+script: ant detect
+
+jdk:
+- openjdk7
+- oraclejdk7
+- oraclejdk8
+
+sudo: false
