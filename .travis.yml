@@ -1,9 +1,18 @@
 language: java
-script: ant detect
+script: ant validate
 
 jdk:
 - openjdk7
 - oraclejdk7
 - oraclejdk8
 
+addons:
+  apt:
+    packages:
+    - picosat
+    - minisat
+
 sudo: false
+
+notifications:
+  email: false
