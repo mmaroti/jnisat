@@ -28,6 +28,22 @@ package jnisat;
  */
 public abstract class Solver {
 	/**
+	 * Creates one of the solvers.
+	 *
+	 * @param what
+	 *            which solver to prefer
+	 * @return a new solver
+	 */
+	public static Solver create(String what) {
+		if (what == null || what.equals("minisat"))
+			return new JMiniSat();
+		else if (what.equals("picosat"))
+			return new JPicoSat();
+		else
+			throw new IllegalArgumentException();
+	}
+
+	/**
 	 * Resets all memory associated with this instance.
 	 */
 	public abstract void reset();
@@ -52,7 +68,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a new variable to the solver with the given special flags.
-	 * 
+	 *
 	 * @param policy
 	 *            one of the policy constants
 	 * @return the positive literal of the new variable
@@ -61,7 +77,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a new variable to the solver.
-	 * 
+	 *
 	 * @return the positive literal of the new variable
 	 */
 	public int addVariable() {
@@ -70,7 +86,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a single literal clause to the solver.
-	 * 
+	 *
 	 * @param lit
 	 *            the literal to be added
 	 */
@@ -78,7 +94,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a two literal clause to the solver.
-	 * 
+	 *
 	 * @param lit1
 	 *            the first literal of the clause
 	 * @param lit2
@@ -89,7 +105,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a three literal clause to the solver.
-	 * 
+	 *
 	 * @param lit1
 	 *            the first literal of the clause
 	 * @param lit2
@@ -101,7 +117,7 @@ public abstract class Solver {
 
 	/**
 	 * Adds a new clause to the solver.
-	 * 
+	 *
 	 * @param literals
 	 *            the list of literals (positive or negative variable indices)
 	 *            of the new clause
@@ -110,14 +126,14 @@ public abstract class Solver {
 
 	/**
 	 * Solves the currently added variables and clauses.
-	 * 
+	 *
 	 * @return <code>true</code> if the instance is solvable
 	 */
 	public abstract boolean solve();
 
 	/**
 	 * Queries the value of a literal in the solution.
-	 * 
+	 *
 	 * @param literal
 	 *            the index of the variable to be queried
 	 * @return positive if the literal is true, negative if the literal is false
