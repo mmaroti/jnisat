@@ -18,14 +18,14 @@
 	</target>
 
 	<target name="libdir" depends="build">
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.libdir">
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.libdir" failonerror="true">
 			<arg value="libdir" />
 		</java>
 		<mkdir dir="build/${jnisat.libdir}" />
 	</target>
 
 	<target name="picosat" depends="libdir" description="compiles the jpicosat adapter">
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jpicosat">
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jpicosat" failonerror="true">
 			<arg value="libname" />
 			<arg value="jpicosat" />
 		</java>
@@ -47,7 +47,7 @@
 	</target>
 
 	<target name="minisat" depends="libdir" description="compiles the jpicosat adapter">
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jminisat">
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jminisat" failonerror="true">
 			<arg value="libname" />
 			<arg value="jminisat" />
 		</java>
@@ -94,13 +94,15 @@
 	</target>
 
 	<target name="detect" depends="jar">
-		<java classname="jnisat.LibDetect" classpath="jnisat.jar" fork="true" />
+		<java classname="jnisat.LibDetect" classpath="jnisat.jar" fork="true" failonerror="true"/>
 	</target>
 
 	<target name="validate" depends="jar" description="runs the validation program">
-		<java jar="jnisat.jar" fork="true">
+		<java jar="jnisat.jar" fork="true" failonerror="true">
 			<jvmarg value="-ea" />
 		</java>
 	</target>
+
+	<target name="travis" depends="detect,validate" />
 
 </project>
