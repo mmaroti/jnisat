@@ -39,17 +39,27 @@ JNIEXPORT jlong JNICALL Java_jnisat_JMiniSat_minisat_1ctor(JNIEnv *env,
 	return encode(new Minisat::SimpSolver());
 }
 
-JNIEXPORT void JNICALL Java_jnisat_JMiniSat_minisat_1dtor
-(JNIEnv *env, jclass cls, jlong handle) {
+JNIEXPORT void JNICALL Java_jnisat_JMiniSat_minisat_1dtor(JNIEnv *env,
+		jclass cls, jlong handle) {
 	delete decode(handle);
 }
 
 JNIEXPORT jint JNICALL Java_jnisat_JMiniSat_minisat_1new_1var(JNIEnv *env,
-		jclass cls, jlong handle, jbyte polarity, jboolean eliminate) {
+		jclass cls, jlong handle, jbyte polarity) {
 	int v = decode(handle)->newVar(Minisat::lbool((uint8_t) polarity));
-	if (!eliminate)
-		decode(handle)->setFrozen(v, true);
 	return (jint)(1 + v);
+}
+
+JNIEXPORT void JNICALL Java_jnisat_JMiniSat_minisat_1set_1decision_1var(
+		JNIEnv *env, jclass cls, jlong handle, jint lit, jboolean value) {
+	int v = lit > 0 ? lit - 1 : -lit - 1;
+	decode(handle)->setDecisionVar(v, value);
+}
+
+JNIEXPORT void JNICALL Java_jnisat_JMiniSat_minisat_1set_1frozen(JNIEnv *env,
+		jclass cls, jlong handle, jint lit, jboolean value) {
+	int v = lit > 0 ? lit - 1 : -lit - 1;
+	decode(handle)->setFrozen(v, value);
 }
 
 static inline Minisat::Lit convert(int lit) {

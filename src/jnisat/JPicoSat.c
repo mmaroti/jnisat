@@ -50,8 +50,8 @@ JNIEXPORT jlong JNICALL Java_jnisat_JPicoSat_picosat_1init(JNIEnv *env,
 	return encode(picosat_init());
 }
 
-JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1reset
-(JNIEnv *env, jclass cls, jlong handle) {
+JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1reset(JNIEnv *env,
+		jclass cls, jlong handle) {
 	picosat_reset(decode(handle));
 }
 
@@ -60,18 +60,18 @@ JNIEXPORT jint JNICALL Java_jnisat_JPicoSat_picosat_1inc_1max_1var(JNIEnv *env,
 	return picosat_inc_max_var(decode(handle));
 }
 
-JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1set_1default_1phase_1lit
-(JNIEnv *env, jclass cls, jlong handle, jint lit, jint phase) {
+JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1set_1default_1phase_1lit(
+		JNIEnv *env, jclass cls, jlong handle, jint lit, jint phase) {
 	picosat_set_default_phase_lit(decode(handle), lit, phase);
 }
 
-JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1set_1more_1important_1lit
-(JNIEnv *env, jclass cls, jlong handle, jint lit) {
+JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1set_1more_1important_1lit(
+		JNIEnv *env, jclass cls, jlong handle, jint lit) {
 	picosat_set_more_important_lit(decode(handle), lit);
 }
 
-JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1set_1less_1important_1lit
-(JNIEnv *env, jclass cls, jlong handle, jint lit) {
+JNIEXPORT void JNICALL Java_jnisat_JPicoSat_picosat_1set_1less_1important_1lit(
+		JNIEnv *env, jclass cls, jlong handle, jint lit) {
 	picosat_set_less_important_lit(decode(handle), lit);
 }
 

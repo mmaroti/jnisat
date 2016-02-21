@@ -70,16 +70,21 @@ public class JMiniSat extends Solver {
 
 	@Override
 	public int addVariable() {
-		return minisat_new_var(handle, LBOOL_UNDEF, false);
+		int lit = minisat_new_var(handle, LBOOL_UNDEF);
+		minisat_set_frozen(handle, lit, true);
+		return lit;
 	}
 
 	@Override
 	public int addVariable(int flags) {
-		boolean eliminate = (flags & FLAG_ELIMINATE) != 0;
-		flags &= FLAG_TRY_TRUE | FLAG_TRY_FALSE;
-		byte polarity = flags == FLAG_TRY_TRUE ? LBOOL_TRUE
-				: flags == FLAG_TRY_FALSE ? LBOOL_FALSE : LBOOL_UNDEF;
-		return minisat_new_var(handle, polarity, eliminate);
+		byte polarity = (flags & FLAG_TRY_TRUE) != 0 ? LBOOL_TRUE
+				: (flags & FLAG_TRY_FALSE) != 0 ? LBOOL_FALSE : LBOOL_UNDEF;
+		int lit = minisat_new_var(handle, polarity);
+		if ((flags & FLAG_ELIMINATE) == 0)
+			minisat_set_frozen(handle, lit, true);
+		if ((flags & FLAG_NODECISION) != 0)
+			minisat_set_decision_var(handle, lit, false);
+		return lit;
 	}
 
 	@Override
@@ -126,8 +131,13 @@ public class JMiniSat extends Solver {
 
 	protected static native void minisat_dtor(long handle);
 
-	protected static native int minisat_new_var(long handle, byte polarity,
-			boolean frozen);
+	protected static native int minisat_new_var(long handle, byte polarity);
+
+	protected static native void minisat_set_decision_var(long handle, int lit,
+			boolean value);
+
+	protected static native void minisat_set_frozen(long handle, int lit,
+			boolean value);
 
 	protected static native boolean minisat_add_clause(long handle, int lit);
 
