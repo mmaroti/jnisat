@@ -79,15 +79,22 @@ public class JPicoSat extends Solver {
 
 	@Override
 	public int addVariable() {
-		return picosat_inc_max_var(handle, 0);
+		return picosat_inc_max_var(handle);
 	}
 
 	@Override
 	public int addVariable(int flags) {
-		flags &= FLAG_TRY_TRUE | FLAG_TRY_FALSE;
-		int phase = flags == FLAG_TRY_TRUE ? PHASE_POSITIVE
-				: flags == FLAG_TRY_FALSE ? PHASE_NEGATIVE : PHASE_DEFAULT;
-		return picosat_inc_max_var(handle, phase);
+		int lit = picosat_inc_max_var(handle);
+
+		if ((flags & FLAG_TRY_TRUE) != 0)
+			picosat_set_default_phase_lit(handle, lit, PHASE_POSITIVE);
+		else if ((flags & FLAG_TRY_FALSE) != 0)
+			picosat_set_default_phase_lit(handle, lit, PHASE_NEGATIVE);
+
+		if ((flags & FLAG_NODECISION) != 0)
+			picosat_set_less_important_lit(handle, lit);
+
+		return lit;
 	}
 
 	@Override
@@ -142,11 +149,20 @@ public class JPicoSat extends Solver {
 
 	protected static native void picosat_reset(long handle);
 
+	protected static native int picosat_inc_max_var(long handle);
+
 	protected final static int PHASE_POSITIVE = 1;
 	protected final static int PHASE_DEFAULT = 0;
 	protected final static int PHASE_NEGATIVE = -1;
 
-	protected static native int picosat_inc_max_var(long handle, int phase);
+	protected static native void picosat_set_default_phase_lit(long handle,
+			int lit, int phase);
+
+	protected static native void picosat_set_more_important_lit(long handle,
+			int lit);
+
+	protected static native void picosat_set_less_important_lit(long handle,
+			int lit);
 
 	protected static native int picosat_add(long handle, int lit);
 
