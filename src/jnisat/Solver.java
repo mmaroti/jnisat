@@ -67,6 +67,11 @@ public abstract class Solver {
 	public static final int FLAG_ELIMINATE = 0x04;
 
 	/**
+	 * Try to avoid making decisions on this variable.
+	 */
+	public static final int FLAG_NODECISION = 0x08;
+
+	/**
 	 * Adds a new variable to the solver with the given special flags.
 	 *
 	 * @param policy
