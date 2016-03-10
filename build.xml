@@ -1,12 +1,12 @@
 <!-- This is an ant makefile, type "ant" to run it -->
-<project name="jnisat" default="jar">
+<project name="jnisat" default="build">
 	<target name="clean" description="removes all build artifacts">
 		<delete includeEmptyDirs="true">
 			<fileset dir="build" includes="**/*" />
 		</delete>
 	</target>
 
-	<target name="build" description="compiles the java files">
+	<target name="compile">
 		<mkdir dir="build" />
 		<javac srcdir="src" destdir="build" classpath="build" includeantruntime="false">
 			<exclude name="jnisat/Sat4J.java" />
@@ -17,14 +17,29 @@
 		</javah>
 	</target>
 
-	<target name="libdir" depends="build">
+	<target name="build" depends="compile" description="builds the jnisat.jar file">
+		<jar destfile="jnisat.jar" includes="" compress="true">
+			<fileset dir="src" includes="**/*.java" />
+			<fileset dir="build" includes="**/*.class" />
+			<fileset dir="" includes="lib/**/*.so" />
+			<fileset dir="" includes="lib/**/*.dll" />
+			<fileset file="LICENSE" />
+			<fileset file="README.md" />
+			<manifest>
+				<attribute name="Main-Class" value="jnisat.Validate" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="libdir" depends="compile">
 		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.libdir" failonerror="true">
 			<arg value="libdir" />
 		</java>
 		<mkdir dir="build/${jnisat.libdir}" />
 	</target>
 
-	<target name="picosat" depends="libdir" description="compiles the jpicosat adapter">
+	<target name="jpicosat" depends="libdir" description="compiles the jpicosat adapter">
 		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jpicosat" failonerror="true">
 			<arg value="libname" />
 			<arg value="jpicosat" />
@@ -46,7 +61,25 @@
 		<move file="build/${jnisat.jpicosat}" todir="lib/${jnisat.libdir}" />
 	</target>
 
-	<target name="minisat" depends="libdir" description="compiles the jpicosat adapter">
+	<target name="minisat.src">
+		<condition property="minisat.src">
+			<available file="build/minisat-master" type="dir" />
+		</condition>
+	</target>
+
+	<target name="getminisat" depends="minisat.src" unless="minisat.src">
+		<exec executable="curl" dir="build" failonerror="true">
+			<arg value="-L" />
+			<arg value="https://github.com/niklasso/minisat/archive/master.zip" />
+			<arg value="-o" />
+			<arg value="minisat-master.zip" />
+		</exec>
+		<exec executable="unzip" dir="build" failonerror="true">
+			<arg value="minisat-master.zip" />
+		</exec>
+	</target>
+
+	<target name="jminisat" depends="libdir" description="compiles the jminisat adapter">
 		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jminisat" failonerror="true">
 			<arg value="libname" />
 			<arg value="jminisat" />
@@ -65,10 +98,32 @@
 			<arg value="-o" />
 			<arg value="${jnisat.jminisat}" />
 		</exec>
+		<exec executable="i686-pc-mingw32-g++" os="Windows XP" dir="build" failonerror="true">
+			<arg value="-D __STDC_LIMIT_MACROS" />
+			<arg value="-D __STDC_FORMAT_MACROS" />
+			<arg value="-D NDEBUG" />
+			<arg value="-Wall" />
+			<arg value="-O3" />
+			<arg value="-shared" />
+			<arg value="-static-libgcc" />
+			<arg value="-static-libstdc++" />
+			<arg value="-s" />
+			<arg value="-I${java.home}/../include/" />
+			<arg value="-I${java.home}/../include/win32/" />
+			<arg value="-Iminisat-master/" />
+			<arg value="-I." />
+			<arg value="../src/jnisat/JMiniSat.cpp" />
+			<arg value="minisat-master/minisat/utils/System.cc" />
+			<arg value="minisat-master/minisat/core/Solver.cc" />
+			<arg value="minisat-master/minisat/simp/SimpSolver.cc" />
+			<arg value="-o" />
+			<arg value="${jnisat.jminisat}" />
+			<arg value="-Wl,--kill-at" />
+		</exec>
 		<move file="build/${jnisat.jminisat}" todir="lib/${jnisat.libdir}" />
 	</target>
 
-	<target name="sat4j" depends="build" description="compiles the sat4j adapter">
+	<target name="sat4j" depends="compile" description="compiles the sat4j adapter">
 		<path id="cp">
 			<pathelement path="/usr/share/java/org.sat4j.core.jar" />
 			<pathelement path="build" />
@@ -78,31 +133,19 @@
 		</javac>
 	</target>
 
-	<target name="jar" depends="build" description="builds the jnisat.jar file">
-		<jar destfile="jnisat.jar" includes="" compress="true">
-			<fileset dir="src" includes="**/*.java" />
-			<fileset dir="build" includes="**/*.class" />
-			<fileset dir="" includes="lib/**/*.so" />
-			<fileset dir="" includes="lib/**/*.dll" />
-			<fileset file="LICENSE" />
-			<fileset file="README.md" />
-			<manifest>
-				<attribute name="Main-Class" value="jnisat.Validate" />
-				<attribute name="Class-Path" value="." />
-			</manifest>
-		</jar>
-	</target>
-
-	<target name="detect" depends="jar">
+	<target name="detect" depends="build">
+		<echo message="ant os.arch: ${os.arch}" />
+		<echo message="ant os.name: ${os.name}" />
+		<echo message="ant java.home: ${java.home}" />
 		<java classname="jnisat.LibDetect" classpath="jnisat.jar" fork="true" failonerror="true"/>
 	</target>
 
-	<target name="validate" depends="jar" description="runs the validation program">
+	<target name="validate" depends="detect" description="runs the validation program">
 		<java jar="jnisat.jar" fork="true" failonerror="true">
 			<jvmarg value="-ea" />
 		</java>
 	</target>
 
-	<target name="travis" depends="detect,validate" />
+	<target name="travis" depends="validate" />
 
 </project>

@@ -94,7 +94,7 @@ public class LibDetect {
 		try {
 			System.loadLibrary(name);
 			return "installed";
-		} catch (UnsatisfiedLinkError e1) {
+		} catch (UnsatisfiedLinkError e) {
 			Object url = LibDetect.class.getResource("/lib/" + LIBDIR + "/"
 					+ System.mapLibraryName(name));
 			return url != null ? "found in jar" : "not found";
@@ -109,7 +109,7 @@ public class LibDetect {
 		else if (args.length == 2 && args[0].equals("libname"))
 			System.out.println(System.mapLibraryName(args[1]));
 		else {
-			System.out.println("libdir:  " + LIBDIR);
+			System.out.println("libdir: " + LIBDIR);
 			System.out.println("picosat: native " + testLibrary("picosat")
 					+ ", adapter " + testLibrary("jpicosat"));
 			System.out.println("minisat: native " + testLibrary("minisat")

@@ -73,7 +73,7 @@ public class Validate {
 	}
 
 	public static void run(String name) {
-		System.out.print(name + ": \t");
+		System.out.print(name + ": ");
 
 		Solver sat;
 		try {
@@ -87,6 +87,7 @@ public class Validate {
 				throw new IllegalArgumentException();
 		} catch (LinkageError e) {
 			System.out.println("not available");
+			// System.out.println("\t" + e.getMessage());
 			return;
 		}
 

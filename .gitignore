@@ -3,5 +3,6 @@
 .cproject
 .settings/
 src/**/*~
+*.bak
 build/
 jnisat.jar
