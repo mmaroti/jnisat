@@ -87,7 +87,7 @@ public class Validate {
 				throw new IllegalArgumentException();
 		} catch (LinkageError e) {
 			System.out.println("not available");
-			// System.out.println("\t" + e.getMessage());
+			System.out.println("\t" + e.getMessage());
 			return;
 		}
 

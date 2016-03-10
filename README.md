@@ -12,22 +12,23 @@ minisat) that is actually doing the work.
 
 ## Installation
 
-First you need to install the native solver library on your operating system.
-For example, on Ubuntu you need to run `sudo apt-get install minisat`
-to install the MiniSat solver, or you can get the latest source and compile
-and install it yourself.
+1. First you need to install the native solver library on your operating system.
+For example, on Ubuntu you need to run `sudo apt-get install minisat picosat`
+to install the MiniSat and PicoSat solvers. On windows you do not have to do
+anything, the adapter library statically contains the native library.
 
-Then clone this JNISat repository from GitHub, and run the `ant jar` command
+2. Then clone this JNISat repository from GitHub, and run the `ant build` command
 to prepare the jnisat.jar file. Try running the `ant validate` command
 to check whether the solvers are working on your system. Then simply add the
 jnisat.jar file to your java application, and you can start using the
 JNISat java library. If you run into problems with the adapter libraries, then
 run `ant detect` to see what is going on.
 
-If no adapter library is compiled for your architecture (or you do not
-trust the ones uploaded in the lib directory), then run `ant minisat`
-or `ant picosat` to create the appropriate adapter libraries for your
-operating system.
+3. If no adapter library is compiled for your architecture (or you do not
+trust the ones uploaded in the lib directory), then run `ant jminisat`
+or `ant jpicosat` to create the appropriate adapter libraries for your
+operating system. On windows you need to install [cygwin](https://www.cygwin.com/)
+and [ant](http://ant.apache.org/) to build the native libraries.
 
 ## License
 
