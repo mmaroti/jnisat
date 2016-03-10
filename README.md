@@ -14,7 +14,7 @@ minisat) that is actually doing the work.
 
 1. First you need to install the native solver library on your operating system.
 For example, on Ubuntu you need to run `sudo apt-get install minisat picosat`
-to install the MiniSat and PicoSat solvers. On windows you do not have to do
+to install the MiniSat and PicoSat solvers. On Windows you do not have to do
 anything, the adapter library statically contains the native library.
 
 2. Then clone this JNISat repository from GitHub, and run the `ant build` command
@@ -27,8 +27,10 @@ run `ant detect` to see what is going on.
 3. If no adapter library is compiled for your architecture (or you do not
 trust the ones uploaded in the lib directory), then run `ant jminisat`
 or `ant jpicosat` to create the appropriate adapter libraries for your
-operating system. On windows you need to install [cygwin](https://www.cygwin.com/)
-and [ant](http://ant.apache.org/) to build the native libraries.
+operating system. On Windows you need to install [cygwin](https://www.cygwin.com/) 
+with the mingw compiler and [ant](http://ant.apache.org/) to build the native
+libraries, but the compiled adapter library is statically linked and will not be
+dependent on anything else.
 
 ## License
 
