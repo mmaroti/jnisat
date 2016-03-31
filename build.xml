@@ -1,9 +1,7 @@
 <!-- This is an ant makefile, type "ant" to run it -->
-<project name="jnisat" default="build">
+<project name="jnisat" default="build" xmlns:if="ant:if">
 	<target name="clean" description="removes all build artifacts">
-		<delete includeEmptyDirs="true">
-			<fileset dir="build" includes="**/*" />
-		</delete>
+		<delete includeEmptyDirs="true" dir="build" />
 	</target>
 
 	<target name="compile">
@@ -37,6 +35,12 @@
 			<arg value="libdir" />
 		</java>
 		<mkdir dir="build/${jnisat.libdir}" />
+		<condition property="jnisat.win32">
+			<equals arg1="${jnisat.libdir}" arg2="win32" />
+		</condition>
+		<condition property="jnisat.win64">
+			<equals arg1="${jnisat.libdir}" arg2="win64" />
+		</condition>
 	</target>
 
 	<target name="jpicosat" depends="libdir" description="compiles the jpicosat adapter">
@@ -68,6 +72,7 @@
 	</target>
 
 	<target name="getminisat" depends="minisat.src" unless="minisat.src">
+		<mkdir dir="build" />
 		<exec executable="curl" dir="build" failonerror="true">
 			<arg value="-L" />
 			<arg value="https://github.com/niklasso/minisat/archive/master.zip" />
@@ -76,6 +81,11 @@
 		</exec>
 		<exec executable="unzip" dir="build" failonerror="true">
 			<arg value="minisat-master.zip" />
+		</exec>
+		<exec executable="patch" dir="build/minisat-master" failonerror="true">
+			<arg value="-p0" />
+			<arg value="-i" />
+			<arg value="../../src/minisat.patch" />
 		</exec>
 	</target>
 
@@ -98,7 +108,31 @@
 			<arg value="-o" />
 			<arg value="${jnisat.jminisat}" />
 		</exec>
-		<exec executable="i686-pc-mingw32-g++" os="Windows XP" dir="build" failonerror="true">
+		<antcall if:set="jnisat.win64" target="getminisat" />
+		<exec executable="i686-pc-mingw32-g++" if:set="jnisat.win32" dir="build" failonerror="true">
+			<arg value="-D __STDC_LIMIT_MACROS" />
+			<arg value="-D __STDC_FORMAT_MACROS" />
+			<arg value="-D NDEBUG" />
+			<arg value="-Wall" />
+			<arg value="-O3" />
+			<arg value="-shared" />
+			<arg value="-static-libgcc" />
+			<arg value="-static-libstdc++" />
+			<arg value="-s" />
+			<arg value="-I${java.home}/../include/" />
+			<arg value="-I${java.home}/../include/win32/" />
+			<arg value="-Iminisat-master/" />
+			<arg value="-I." />
+			<arg value="../src/jnisat/JMiniSat.cpp" />
+			<arg value="minisat-master/minisat/utils/System.cc" />
+			<arg value="minisat-master/minisat/core/Solver.cc" />
+			<arg value="minisat-master/minisat/simp/SimpSolver.cc" />
+			<arg value="-o" />
+			<arg value="${jnisat.jminisat}" />
+			<arg value="-Wl,--kill-at" />
+		</exec>
+		<exec executable="x86_64-w64-mingw32-g++" if:set="jnisat.win64" dir="build" failonerror="true">
+			<arg value="-D __USE_MINGW_ANSI_STDIO" />
 			<arg value="-D __STDC_LIMIT_MACROS" />
 			<arg value="-D __STDC_FORMAT_MACROS" />
 			<arg value="-D NDEBUG" />
