@@ -8,7 +8,10 @@ operating systems (Linux, Windows, Mac OS) and architectures (x86 and amd64)
 and packaged into a single JAR file. At runtime the appropriate adapter
 library is loaded from the JAR file by the Java virtual machine, and then
 the operating system links and loads the native solver library (picosat,
-minisat) that is actually doing the work.
+minisat) that is actually doing the work. 
+The [Solver.java](src/jnisat/Solver.java) interface provides a unified 
+incremental SAT solver interface to MiniSat and PicoSat (and Sat4J as well).
+See the provided [Validate.java] application for basic usage.
 
 ## Installation
 
