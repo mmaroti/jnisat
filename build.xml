@@ -6,8 +6,11 @@
 
 	<target name="compile">
 		<mkdir dir="build" />
-		<javac srcdir="src" destdir="build" classpath="build" includeantruntime="false">
-			<exclude name="jnisat/Sat4J.java" />
+		<javac srcdir="src" destdir="build" includeantruntime="false">
+			<classpath>
+				<pathelement path="build" />
+				<pathelement location="lib/org.sat4j.core.jar" />
+			</classpath>
 		</javac>
 		<javah destdir="build" force="yes" classpath="build">
 			<class name="jnisat.JPicoSat" />
@@ -21,6 +24,9 @@
 			<fileset dir="build" includes="**/*.class" />
 			<fileset dir="" includes="lib/**/*.so" />
 			<fileset dir="" includes="lib/**/*.dll" />
+			<zipfileset src="lib/org.sat4j.core.jar">
+				<include name="org/**/*" />
+			</zipfileset>
 			<fileset file="LICENSE" />
 			<fileset file="README.md" />
 			<manifest>
@@ -155,16 +161,6 @@
 			<arg value="-Wl,--kill-at" />
 		</exec>
 		<move file="build/${jnisat.jminisat}" todir="lib/${jnisat.libdir}" />
-	</target>
-
-	<target name="sat4j" depends="compile" description="compiles the sat4j adapter">
-		<path id="cp">
-			<pathelement path="/usr/share/java/org.sat4j.core.jar" />
-			<pathelement path="build" />
-		</path>
-		<javac srcdir="src" destdir="build" classpathref="cp" includeantruntime="false">
-			<include name="jnisat/Sat4J.java" />
-		</javac>
 	</target>
 
 	<target name="detect" depends="build">

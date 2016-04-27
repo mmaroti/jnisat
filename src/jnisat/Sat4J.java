@@ -38,6 +38,7 @@ public class Sat4J extends Solver {
 	@Override
 	public void reset() {
 		solver.reset();
+		solvable = true;
 	}
 
 	@Override

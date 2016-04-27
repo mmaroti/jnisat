@@ -39,6 +39,8 @@ public abstract class Solver {
 			return new JMiniSat();
 		else if (what.equals("picosat"))
 			return new JPicoSat();
+		else if (what.equals("sat4j"))
+			return new Sat4J();
 		else
 			throw new IllegalArgumentException();
 	}
