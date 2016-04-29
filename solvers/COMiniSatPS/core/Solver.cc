@@ -964,8 +964,9 @@ lbool Solver::solve_()
     glucose_restart = true;
     int init = 10000;
     while (status == l_Undef && init > 0 /*&& withinBudget()*/)
-       status = search(init);
-    glucose_restart = false;
+        status = search(init);
+    if (status == l_Undef)
+        glucose_restart = false;
 
     // Search:
     int phase_allotment = 100;
