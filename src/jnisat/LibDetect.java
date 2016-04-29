@@ -114,6 +114,8 @@ public class LibDetect {
 					+ ", adapter " + testLibrary("jpicosat"));
 			System.out.println("minisat: native " + testLibrary("minisat")
 					+ ", adapter " + testLibrary("jminisat"));
+			System.out.println("cominisatps: adapter "
+					+ testLibrary("cominisatps"));
 		}
 	}
 }
