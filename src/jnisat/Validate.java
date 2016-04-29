@@ -100,6 +100,7 @@ public class Validate {
 		System.out.println("Calculating the 8th Bell number (4140 solutions)");
 		run("minisat");
 		run("picosat");
+		run("cominisatps");
 		run("sat4j");
 	}
 }

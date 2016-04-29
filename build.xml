@@ -15,6 +15,7 @@
 		<javah destdir="build" force="yes" classpath="build">
 			<class name="jnisat.JPicoSat" />
 			<class name="jnisat.JMiniSat" />
+			<class name="jnisat.COMiniSatPS" />
 		</javah>
 	</target>
 
@@ -161,6 +162,34 @@
 			<arg value="-Wl,--kill-at" />
 		</exec>
 		<move file="build/${jnisat.jminisat}" todir="lib/${jnisat.libdir}" />
+	</target>
+
+	<target name="cominisatps" depends="libdir" description="compiles the COMiniSatPS solver">
+		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.cominisatps" failonerror="true">
+			<arg value="libname" />
+			<arg value="cominisatps" />
+		</java>
+		<exec executable="g++" os="Linux" dir="build" failonerror="true">
+			<arg value="-Wall" />
+			<arg value="-Wno-parentheses" />
+			<arg value="-Wno-unused-label" />
+			<arg value="-Wno-unused-function" />
+			<arg value="-O3" />
+			<arg value="-fPIC" />
+			<arg value="-shared" />
+			<arg value="-s" />
+			<arg value="-I${java.home}/../include/" />
+			<arg value="-I${java.home}/../include/linux/" />
+			<arg value="-I." />
+			<arg value="-I../solvers/COMiniSatPS" />
+			<arg value="../src/jnisat/COMiniSatPS.cpp" />
+			<arg value="../solvers/COMiniSatPS/utils/System.cc" />
+			<arg value="../solvers/COMiniSatPS/core/Solver.cc" />
+			<arg value="../solvers/COMiniSatPS/simp/SimpSolver.cc" />
+			<arg value="-o" />
+			<arg value="${jnisat.cominisatps}" />
+		</exec>
+		<move file="build/${jnisat.cominisatps}" todir="lib/${jnisat.libdir}" />
 	</target>
 
 	<target name="detect" depends="build">

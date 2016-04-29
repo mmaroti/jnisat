@@ -22,9 +22,13 @@
 
 package jnisat;
 
-public class JMiniSat extends Solver {
+/**
+ * This is the JNI adapter for the COMiniSatPS solver as participated in the SAT
+ * 2015 race.
+ */
+public class COMiniSatPS extends Solver {
 	static {
-		LibDetect.loadLibrary("jminisat");
+		LibDetect.loadLibrary("cominisatps");
 	}
 
 	protected long handle;
@@ -36,10 +40,10 @@ public class JMiniSat extends Solver {
 	protected static final int SIMPLIFY_ALWAYS = 1;
 
 	/**
-	 * Constructs a new MiniSAT instance with the given simplification method;
+	 * Constructs a new solver instance with the given simplification method;
 	 */
-	public JMiniSat(int simplify) {
-		handle = minisat_ctor();
+	public COMiniSatPS(int simplify) {
+		handle = cominisatps_ctor();
 		if (handle == 0)
 			throw new OutOfMemoryError();
 
@@ -48,123 +52,125 @@ public class JMiniSat extends Solver {
 	}
 
 	/**
-	 * Constructs a new MiniSAT instance
+	 * Constructs a new solver instance
 	 */
-	public JMiniSat() {
-		this(SIMPLIFY_ONCE);
+	public COMiniSatPS() {
+		this(SIMPLIFY_NEVER);
 	}
 
 	@Override
 	public void reset() {
 		if (handle != 0)
-			minisat_dtor(handle);
-		handle = minisat_ctor();
+			cominisatps_dtor(handle);
+		handle = cominisatps_ctor();
 		solvable = true;
 	}
 
 	@Override
 	protected void finalize() {
 		if (handle != 0)
-			minisat_dtor(handle);
+			cominisatps_dtor(handle);
 		handle = 0;
 	}
 
 	@Override
 	public int addVariable() {
-		int lit = minisat_new_var(handle, LBOOL_UNDEF);
-		minisat_set_frozen(handle, lit, true);
+		int lit = cominisatps_new_var(handle, true, true);
+		cominisatps_set_frozen(handle, lit, true);
 		return lit;
 	}
 
 	@Override
 	public int addVariable(int flags) {
-		byte polarity = (flags & FLAG_TRY_TRUE) != 0 ? LBOOL_TRUE
-				: (flags & FLAG_TRY_FALSE) != 0 ? LBOOL_FALSE : LBOOL_UNDEF;
-		int lit = minisat_new_var(handle, polarity);
+		boolean polarity = (flags & FLAG_TRY_FALSE) == 0;
+		boolean decision = (flags & FLAG_NODECISION) == 0;
+		int lit = cominisatps_new_var(handle, polarity, decision);
 		if ((flags & FLAG_ELIMINATE) == 0)
-			minisat_set_frozen(handle, lit, true);
-		if ((flags & FLAG_NODECISION) != 0)
-			minisat_set_decision_var(handle, lit, false);
+			cominisatps_set_frozen(handle, lit, true);
 		return lit;
 	}
 
 	@Override
 	public void addClause(int lit) {
-		solvable = minisat_add_clause(handle, lit);
+		solvable &= cominisatps_add_clause(handle, lit);
 	}
 
 	@Override
 	public void addClause(int lit1, int lit2) {
-		solvable = minisat_add_clause(handle, lit1, lit2);
+		solvable &= cominisatps_add_clause(handle, lit1, lit2);
 	}
 
 	@Override
 	public void addClause(int lit1, int lit2, int lit3) {
-		solvable = minisat_add_clause(handle, lit1, lit2, lit3);
+		solvable &= cominisatps_add_clause(handle, lit1, lit2, lit3);
 	}
 
 	@Override
 	public void addClause(int... literals) {
-		solvable = minisat_add_clause(handle, literals);
+		solvable &= cominisatps_add_clause(handle, literals);
 	}
 
 	@Override
 	public boolean solve() {
+		if (!solvable)
+			return false;
+
 		if (simplify == SIMPLIFY_ONCE) {
-			solvable = minisat_solve(handle, true, true);
+			solvable = cominisatps_solve(handle, true, true);
 			simplify = SIMPLIFY_NEVER;
 		} else if (simplify == SIMPLIFY_ALWAYS)
-			solvable = minisat_solve(handle, true, false);
+			solvable = cominisatps_solve(handle, true, false);
 		else
-			solvable = minisat_solve(handle, false, true);
+			solvable = cominisatps_solve(handle, false, true);
+
 		return solvable;
 	}
 
 	@Override
 	public int getValue(int literal) {
 		assert solvable;
-		byte a = minisat_model_value(handle, literal);
+		byte a = cominisatps_model_value(handle, literal);
 		assert a == LBOOL_FALSE || a == LBOOL_TRUE;
 		return a == LBOOL_TRUE ? 1 : -1;
 	}
 
-	protected static native long minisat_ctor();
+	protected static native long cominisatps_ctor();
 
-	protected static native void minisat_dtor(long handle);
+	protected static native void cominisatps_dtor(long handle);
 
-	protected static native int minisat_new_var(long handle, byte polarity);
+	protected static native int cominisatps_new_var(long handle, boolean polarity, boolean decision);
 
-	protected static native void minisat_set_decision_var(long handle, int lit,
+	protected static native void cominisatps_set_decision_var(long handle, int lit,
 			boolean value);
 
-	protected static native void minisat_set_frozen(long handle, int lit,
+	protected static native void cominisatps_set_frozen(long handle, int lit,
 			boolean value);
 
-	protected static native boolean minisat_add_clause(long handle, int lit);
+	protected static native boolean cominisatps_add_clause(long handle, int lit);
 
-	protected static native boolean minisat_add_clause(long handle, int lit1,
+	protected static native boolean cominisatps_add_clause(long handle, int lit1,
 			int lit2);
 
-	protected static native boolean minisat_add_clause(long handle, int lit1,
+	protected static native boolean cominisatps_add_clause(long handle, int lit1,
 			int lit2, int lit3);
 
-	protected static native boolean minisat_add_clause(long handle, int[] lits);
+	protected static native boolean cominisatps_add_clause(long handle, int[] lits);
 
-	protected static native boolean minisat_solve(long handle,
+	protected static native boolean cominisatps_solve(long handle,
 			boolean simplify, boolean turnoff);
 
-	protected static native boolean minisat_simplify(long handle);
+	protected static native boolean cominisatps_simplify(long handle);
 
-	protected static native boolean minisat_eliminate(long handle,
+	protected static native boolean cominisatps_eliminate(long handle,
 			boolean turnoff);
 
-	protected static native boolean minisat_is_eliminated(long handle, int lit);
+	protected static native boolean cominisatps_is_eliminated(long handle, int lit);
 
-	protected static native boolean minisat_okay(long handle);
+	protected static native boolean cominisatps_okay(long handle);
 
 	protected static final byte LBOOL_TRUE = 0;
 	protected static final byte LBOOL_FALSE = 1;
 	protected static final byte LBOOL_UNDEF = 2;
 
-	protected static native byte minisat_model_value(long handle, int lit);
+	protected static native byte cominisatps_model_value(long handle, int lit);
 }
