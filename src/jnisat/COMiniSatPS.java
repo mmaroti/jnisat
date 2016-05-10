@@ -44,13 +44,9 @@ public class COMiniSatPS extends Solver {
 	 * Constructs a new solver instance with the given simplification method;
 	 */
 	public COMiniSatPS(int simplify) {
-		handle = cominisatps_ctor();
-		if (handle == 0)
-			throw new OutOfMemoryError();
-
 		this.simplify = simplify;
-		solvable = true;
-		simplified = false;
+		handle = 0;
+		reset();
 	}
 
 	/**
@@ -65,8 +61,13 @@ public class COMiniSatPS extends Solver {
 		if (handle != 0)
 			cominisatps_dtor(handle);
 		handle = cominisatps_ctor();
+		if (handle == 0)
+			throw new OutOfMemoryError();
+
 		solvable = true;
 		simplified = false;
+		if (simplify == SIMPLIFY_NEVER)
+			cominisatps_eliminate(handle, true);
 	}
 
 	@Override
@@ -119,12 +120,12 @@ public class COMiniSatPS extends Solver {
 			return false;
 
 		if (simplify == SIMPLIFY_ONCE) {
-			solvable = cominisatps_solve(handle, true, !simplified);
+			solvable = cominisatps_solve(handle, !simplified, !simplified);
 			simplified = true;
 		} else if (simplify == SIMPLIFY_ALWAYS)
 			solvable = cominisatps_solve(handle, true, false);
 		else
-			solvable = cominisatps_solve(handle, false, true);
+			solvable = cominisatps_solve(handle, false, false);
 
 		return solvable;
 	}
