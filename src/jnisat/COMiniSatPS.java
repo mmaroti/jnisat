@@ -33,11 +33,12 @@ public class COMiniSatPS extends Solver {
 
 	protected long handle;
 	protected boolean solvable;
-	protected int simplify;
+	protected boolean simplified;
 
+	protected final int simplify;
 	protected static final int SIMPLIFY_NEVER = 0;
 	protected static final int SIMPLIFY_ONCE = 1;
-	protected static final int SIMPLIFY_ALWAYS = 1;
+	protected static final int SIMPLIFY_ALWAYS = 2;
 
 	/**
 	 * Constructs a new solver instance with the given simplification method;
@@ -47,15 +48,16 @@ public class COMiniSatPS extends Solver {
 		if (handle == 0)
 			throw new OutOfMemoryError();
 
-		solvable = true;
 		this.simplify = simplify;
+		solvable = true;
+		simplified = false;
 	}
 
 	/**
 	 * Constructs a new solver instance
 	 */
 	public COMiniSatPS() {
-		this(SIMPLIFY_NEVER);
+		this(SIMPLIFY_ONCE);
 	}
 
 	@Override
@@ -64,6 +66,7 @@ public class COMiniSatPS extends Solver {
 			cominisatps_dtor(handle);
 		handle = cominisatps_ctor();
 		solvable = true;
+		simplified = false;
 	}
 
 	@Override
@@ -116,8 +119,8 @@ public class COMiniSatPS extends Solver {
 			return false;
 
 		if (simplify == SIMPLIFY_ONCE) {
-			solvable = cominisatps_solve(handle, true, true);
-			simplify = SIMPLIFY_NEVER;
+			solvable = cominisatps_solve(handle, true, !simplified);
+			simplified = true;
 		} else if (simplify == SIMPLIFY_ALWAYS)
 			solvable = cominisatps_solve(handle, true, false);
 		else
@@ -138,23 +141,25 @@ public class COMiniSatPS extends Solver {
 
 	protected static native void cominisatps_dtor(long handle);
 
-	protected static native int cominisatps_new_var(long handle, boolean polarity, boolean decision);
+	protected static native int cominisatps_new_var(long handle,
+			boolean polarity, boolean decision);
 
-	protected static native void cominisatps_set_decision_var(long handle, int lit,
-			boolean value);
+	protected static native void cominisatps_set_decision_var(long handle,
+			int lit, boolean value);
 
 	protected static native void cominisatps_set_frozen(long handle, int lit,
 			boolean value);
 
 	protected static native boolean cominisatps_add_clause(long handle, int lit);
 
-	protected static native boolean cominisatps_add_clause(long handle, int lit1,
-			int lit2);
+	protected static native boolean cominisatps_add_clause(long handle,
+			int lit1, int lit2);
 
-	protected static native boolean cominisatps_add_clause(long handle, int lit1,
-			int lit2, int lit3);
+	protected static native boolean cominisatps_add_clause(long handle,
+			int lit1, int lit2, int lit3);
 
-	protected static native boolean cominisatps_add_clause(long handle, int[] lits);
+	protected static native boolean cominisatps_add_clause(long handle,
+			int[] lits);
 
 	protected static native boolean cominisatps_solve(long handle,
 			boolean simplify, boolean turnoff);
@@ -164,7 +169,8 @@ public class COMiniSatPS extends Solver {
 	protected static native boolean cominisatps_eliminate(long handle,
 			boolean turnoff);
 
-	protected static native boolean cominisatps_is_eliminated(long handle, int lit);
+	protected static native boolean cominisatps_is_eliminated(long handle,
+			int lit);
 
 	protected static native boolean cominisatps_okay(long handle);
 

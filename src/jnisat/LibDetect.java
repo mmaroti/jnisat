@@ -110,11 +110,11 @@ public class LibDetect {
 			System.out.println(System.mapLibraryName(args[1]));
 		else {
 			System.out.println("libdir: " + LIBDIR);
-			System.out.println("picosat: native " + testLibrary("picosat")
+			System.out.println("picosat: solver " + testLibrary("picosat")
 					+ ", adapter " + testLibrary("jpicosat"));
-			System.out.println("minisat: native " + testLibrary("minisat")
+			System.out.println("minisat: solver " + testLibrary("minisat")
 					+ ", adapter " + testLibrary("jminisat"));
-			System.out.println("cominisatps: adapter "
+			System.out.println("cominisatps: solver with adapter "
 					+ testLibrary("cominisatps"));
 		}
 	}

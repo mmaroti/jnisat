@@ -29,11 +29,12 @@ public class JMiniSat extends Solver {
 
 	protected long handle;
 	protected boolean solvable;
-	protected int simplify;
+	protected boolean simplified;
 
+	protected final int simplify;
 	protected static final int SIMPLIFY_NEVER = 0;
 	protected static final int SIMPLIFY_ONCE = 1;
-	protected static final int SIMPLIFY_ALWAYS = 1;
+	protected static final int SIMPLIFY_ALWAYS = 2;
 
 	/**
 	 * Constructs a new MiniSAT instance with the given simplification method;
@@ -43,8 +44,9 @@ public class JMiniSat extends Solver {
 		if (handle == 0)
 			throw new OutOfMemoryError();
 
-		solvable = true;
 		this.simplify = simplify;
+		solvable = true;
+		simplified = false;
 	}
 
 	/**
@@ -58,8 +60,10 @@ public class JMiniSat extends Solver {
 	public void reset() {
 		if (handle != 0)
 			minisat_dtor(handle);
+
 		handle = minisat_ctor();
 		solvable = true;
+		simplified = false;
 	}
 
 	@Override
@@ -111,8 +115,8 @@ public class JMiniSat extends Solver {
 	@Override
 	public boolean solve() {
 		if (simplify == SIMPLIFY_ONCE) {
-			solvable = minisat_solve(handle, true, true);
-			simplify = SIMPLIFY_NEVER;
+			solvable = minisat_solve(handle, true, !simplified);
+			simplified = true;
 		} else if (simplify == SIMPLIFY_ALWAYS)
 			solvable = minisat_solve(handle, true, false);
 		else
