@@ -2,6 +2,7 @@
 <project name="jnisat" default="build" xmlns:if="ant:if">
 	<target name="clean" description="removes all build artifacts">
 		<delete includeEmptyDirs="true" dir="build" />
+		<delete file="jnisat.jar" />
 	</target>
 
 	<target name="compile">
@@ -12,7 +13,7 @@
 				<pathelement location="lib/org.sat4j.core.jar" />
 			</classpath>
 		</javac>
-		<javah destdir="build" force="yes" classpath="build">
+		<javah destdir="build" force="yes" classpath="build" >
 			<class name="jnisat.JPicoSat" />
 			<class name="jnisat.JMiniSat" />
 			<class name="jnisat.COMiniSatPS" />
