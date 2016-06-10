@@ -175,6 +175,8 @@
 			<arg value="-Wno-parentheses" />
 			<arg value="-Wno-unused-label" />
 			<arg value="-Wno-unused-function" />
+			<arg value="-D __STDC_LIMIT_MACROS" />
+			<arg value="-D __STDC_FORMAT_MACROS" />
 			<arg value="-O3" />
 			<arg value="-fPIC" />
 			<arg value="-shared" />
