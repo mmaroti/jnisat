@@ -26,6 +26,7 @@
 			<fileset dir="build" includes="**/*.class" />
 			<fileset dir="" includes="lib/**/*.so" />
 			<fileset dir="" includes="lib/**/*.dll" />
+			<fileset dir="" includes="lib/**/*.dylib" />
 			<zipfileset src="lib/org.sat4j.core.jar">
 				<include name="org/**/*" />
 			</zipfileset>
@@ -48,6 +49,9 @@
 		</condition>
 		<condition property="jnisat.win64">
 			<equals arg1="${jnisat.libdir}" arg2="win64" />
+		</condition>
+		<condition property="jnisat.osx64">
+			<equals arg1="${jnisat.libdir}" arg2="osx64" />
 		</condition>
 	</target>
 
@@ -110,6 +114,22 @@
 			<arg value="-s" />
 			<arg value="-I${java.home}/../include/" />
 			<arg value="-I${java.home}/../include/linux/" />
+			<arg value="-I." />
+			<arg value="../src/jnisat/JMiniSat.cpp" />
+			<arg value="-lminisat" />
+			<arg value="-o" />
+			<arg value="${jnisat.jminisat}" />
+		</exec>
+		<antcall if:set="jnisat.osx64" target="getminisat" />
+		<exec executable="g++" os="Mac OS X" dir="build" failonerror="true">
+			<arg value="-Wall" />
+			<arg value="-O3" />
+			<arg value="-fPIC" />
+			<arg value="-shared" />
+			<arg value="-s" />
+			<arg value="-I${java.home}/../include/" />
+			<arg value="-I${java.home}/../include/darwin/" />
+			<arg value="-Iminisat-master/" />
 			<arg value="-I." />
 			<arg value="../src/jnisat/JMiniSat.cpp" />
 			<arg value="-lminisat" />
@@ -183,6 +203,27 @@
 			<arg value="-s" />
 			<arg value="-I${java.home}/../include/" />
 			<arg value="-I${java.home}/../include/linux/" />
+			<arg value="-I." />
+			<arg value="-I../solvers/COMiniSatPS" />
+			<arg value="../src/jnisat/COMiniSatPS.cpp" />
+			<arg value="../solvers/COMiniSatPS/utils/System.cc" />
+			<arg value="../solvers/COMiniSatPS/core/Solver.cc" />
+			<arg value="../solvers/COMiniSatPS/simp/SimpSolver.cc" />
+			<arg value="-o" />
+			<arg value="${jnisat.cominisatps}" />
+		</exec>
+		<exec executable="g++" os="Mac OS X" dir="build" failonerror="true">
+			<arg value="-Wall" />
+			<arg value="-Wno-parentheses" />
+			<arg value="-Wno-unused-label" />
+			<arg value="-Wno-unused-function" />
+			<arg value="-D __STDC_LIMIT_MACROS" />
+			<arg value="-D __STDC_FORMAT_MACROS" />
+			<arg value="-O3" />
+			<arg value="-fPIC" />
+			<arg value="-shared" />
+			<arg value="-I${java.home}/../include/" />
+			<arg value="-I${java.home}/../include/darwin/" />
 			<arg value="-I." />
 			<arg value="-I../solvers/COMiniSatPS" />
 			<arg value="../src/jnisat/COMiniSatPS.cpp" />

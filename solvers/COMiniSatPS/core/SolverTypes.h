@@ -49,7 +49,11 @@ struct Lit {
     int     x;
 
     // Use this as a constructor:
+#ifndef __APPLE__
     friend Lit mkLit(Var var, bool sign = false);
+#else
+    Lit mkLit(Var var, bool sign);
+#endif
 
     bool operator == (Lit p) const { return x == p.x; }
     bool operator != (Lit p) const { return x != p.x; }
@@ -57,7 +61,12 @@ struct Lit {
 };
 
 
+#ifndef __APPLE__
 inline  Lit  mkLit     (Var var, bool sign) { Lit p; p.x = var + var + (int)sign; return p; }
+#else
+inline  Lit  mkLit     (Var var, bool sign = false) { Lit p; p.x = var + var + (int)sign; return p; }
+#endif
+
 inline  Lit  operator ~(Lit p)              { Lit q; q.x = p.x ^ 1; return q; }
 inline  Lit  operator ^(Lit p, bool b)      { Lit q; q.x = p.x ^ (unsigned int)b; return q; }
 inline  bool sign      (Lit p)              { return p.x & 1; }
