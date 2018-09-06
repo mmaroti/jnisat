@@ -5,4 +5,4 @@
 src/**/*~
 *.bak
 build/
-jnisat.jar
+org.jnisat.jar

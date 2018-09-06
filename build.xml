@@ -7,36 +7,31 @@
 
 	<target name="compile">
 		<mkdir dir="build" />
-		<javac srcdir="src" destdir="build" includeantruntime="false" nativeheaderdir="build" modulepath="lib" source="9" target="9">
+		<javac srcdir="src" destdir="build" includeantruntime="false" nativeheaderdir="build" target="9" source="9">
 			<classpath>
 				<pathelement path="build/" />
-				<pathelement location="lib/org.sat4j.core.jar" />
 			</classpath>
-			<compilerarg value="-Xlint:deprecation" />
+			<!--<compilerarg value="-Xlint:deprecation" />-->
 		</javac>
 	</target>
 
-	<target name="build" depends="compile" description="builds the jnisat.jar file">
-		<jar destfile="jnisat.jar" includes="" compress="true">
-			<fileset dir="src" includes="**/*.java" />
+	<target name="build" depends="compile" description="builds the org.jnisat.jar file">
+		<jar destfile="org.jnisat.jar" includes="" compress="true">
 			<fileset dir="build" includes="**/*.class" />
 			<fileset dir="" includes="lib/**/*.so" />
 			<fileset dir="" includes="lib/**/*.dll" />
 			<fileset dir="" includes="lib/**/*.dylib" />
-			<zipfileset src="lib/org.sat4j.core.jar">
-				<include name="org/**/*" />
-			</zipfileset>
 			<fileset file="LICENSE" />
 			<fileset file="README.md" />
 			<manifest>
-				<attribute name="Main-Class" value="jnisat.Validate" />
+				<attribute name="Main-Class" value="org.jnisat.Validate" />
 				<attribute name="Class-Path" value="." />
 			</manifest>
 		</jar>
 	</target>
 
 	<target name="libdir" depends="compile">
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.libdir" failonerror="true">
+		<java classname="org.jnisat.LibDetect" classpath="build" outputproperty="jnisat.libdir" failonerror="true">
 			<arg value="libdir" />
 		</java>
 		<mkdir dir="build/${jnisat.libdir}" />
@@ -52,7 +47,7 @@
 	</target>
 
 	<target name="jpicosat" depends="libdir" description="compiles the jpicosat adapter">
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jpicosat" failonerror="true">
+		<java classname="org.jnisat.LibDetect" classpath="build" outputproperty="jnisat.jpicosat" failonerror="true">
 			<arg value="libname" />
 			<arg value="jpicosat" />
 		</java>
@@ -62,10 +57,10 @@
 			<arg value="-fPIC" />
 			<arg value="-shared" />
 			<arg value="-s" />
-			<arg value="-I${java.home}/../include/" />
-			<arg value="-I${java.home}/../include/linux/" />
+			<arg value="-I${java.home}/include/" />
+			<arg value="-I${java.home}/include/linux/" />
 			<arg value="-I." />
-			<arg value="../src/jnisat/JPicoSat.c" />
+			<arg value="../src/org/jnisat/JPicoSat.c" />
 			<arg value="-lpicosat" />
 			<arg value="-o" />
 			<arg value="${jnisat.jpicosat}" />
@@ -98,7 +93,7 @@
 	</target>
 
 	<target name="jminisat" depends="libdir" description="compiles the jminisat adapter">
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.jminisat" failonerror="true">
+		<java classname="org.jnisat.LibDetect" classpath="build" outputproperty="jnisat.jminisat" failonerror="true">
 			<arg value="libname" />
 			<arg value="jminisat" />
 		</java>
@@ -108,10 +103,10 @@
 			<arg value="-fPIC" />
 			<arg value="-shared" />
 			<arg value="-s" />
-			<arg value="-I${java.home}/../include/" />
-			<arg value="-I${java.home}/../include/linux/" />
+			<arg value="-I${java.home}/include/" />
+			<arg value="-I${java.home}/include/linux/" />
 			<arg value="-I." />
-			<arg value="../src/jnisat/JMiniSat.cpp" />
+			<arg value="../src/org/jnisat/JMiniSat.cpp" />
 			<arg value="-lminisat" />
 			<arg value="-o" />
 			<arg value="${jnisat.jminisat}" />
@@ -123,11 +118,11 @@
 			<arg value="-fPIC" />
 			<arg value="-shared" />
 			<arg value="-s" />
-			<arg value="-I${java.home}/../include/" />
-			<arg value="-I${java.home}/../include/darwin/" />
+			<arg value="-I${java.home}/include/" />
+			<arg value="-I${java.home}/include/darwin/" />
 			<arg value="-Iminisat-master/" />
 			<arg value="-I." />
-			<arg value="../src/jnisat/JMiniSat.cpp" />
+			<arg value="../src/org/jnisat/JMiniSat.cpp" />
 			<arg value="-lminisat" />
 			<arg value="-o" />
 			<arg value="${jnisat.jminisat}" />
@@ -143,11 +138,11 @@
 			<arg value="-static-libgcc" />
 			<arg value="-static-libstdc++" />
 			<arg value="-s" />
-			<arg value="-I${java.home}/../include/" />
-			<arg value="-I${java.home}/../include/win32/" />
+			<arg value="-I${java.home}/include/" />
+			<arg value="-I${java.home}/include/win32/" />
 			<arg value="-Iminisat-master/" />
 			<arg value="-I." />
-			<arg value="../src/jnisat/JMiniSat.cpp" />
+			<arg value="../src/org/jnisat/JMiniSat.cpp" />
 			<arg value="minisat-master/minisat/utils/System.cc" />
 			<arg value="minisat-master/minisat/core/Solver.cc" />
 			<arg value="minisat-master/minisat/simp/SimpSolver.cc" />
@@ -166,11 +161,11 @@
 			<arg value="-static-libgcc" />
 			<arg value="-static-libstdc++" />
 			<arg value="-s" />
-			<arg value="-I${java.home}/../include/" />
-			<arg value="-I${java.home}/../include/win32/" />
+			<arg value="-I${java.home}/include/" />
+			<arg value="-I${java.home}/include/win32/" />
 			<arg value="-Iminisat-master/" />
 			<arg value="-I." />
-			<arg value="../src/jnisat/JMiniSat.cpp" />
+			<arg value="../src/org/jnisat/JMiniSat.cpp" />
 			<arg value="minisat-master/minisat/utils/System.cc" />
 			<arg value="minisat-master/minisat/core/Solver.cc" />
 			<arg value="minisat-master/minisat/simp/SimpSolver.cc" />
@@ -182,7 +177,7 @@
 	</target>
 
 	<target name="cominisatps" depends="libdir" description="compiles the COMiniSatPS solver">
-		<java classname="jnisat.LibDetect" classpath="build" outputproperty="jnisat.cominisatps" failonerror="true">
+		<java classname="org.jnisat.LibDetect" classpath="build" outputproperty="jnisat.cominisatps" failonerror="true">
 			<arg value="libname" />
 			<arg value="cominisatps" />
 		</java>
@@ -197,11 +192,11 @@
 			<arg value="-fPIC" />
 			<arg value="-shared" />
 			<arg value="-s" />
-			<arg value="-I${java.home}/../include/" />
-			<arg value="-I${java.home}/../include/linux/" />
+			<arg value="-I${java.home}/include/" />
+			<arg value="-I${java.home}/include/linux/" />
 			<arg value="-I." />
 			<arg value="-I../solvers/COMiniSatPS" />
-			<arg value="../src/jnisat/COMiniSatPS.cpp" />
+			<arg value="../src/org/jnisat/COMiniSatPS.cpp" />
 			<arg value="../solvers/COMiniSatPS/utils/System.cc" />
 			<arg value="../solvers/COMiniSatPS/core/Solver.cc" />
 			<arg value="../solvers/COMiniSatPS/simp/SimpSolver.cc" />
@@ -218,11 +213,11 @@
 			<arg value="-O3" />
 			<arg value="-fPIC" />
 			<arg value="-shared" />
-			<arg value="-I${java.home}/../include/" />
-			<arg value="-I${java.home}/../include/darwin/" />
+			<arg value="-I${java.home}/include/" />
+			<arg value="-I${java.home}/include/darwin/" />
 			<arg value="-I." />
 			<arg value="-I../solvers/COMiniSatPS" />
-			<arg value="../src/jnisat/COMiniSatPS.cpp" />
+			<arg value="../src/org/jnisat/COMiniSatPS.cpp" />
 			<arg value="../solvers/COMiniSatPS/utils/System.cc" />
 			<arg value="../solvers/COMiniSatPS/core/Solver.cc" />
 			<arg value="../solvers/COMiniSatPS/simp/SimpSolver.cc" />
@@ -236,11 +231,11 @@
 		<echo message="ant os.arch: ${os.arch}" />
 		<echo message="ant os.name: ${os.name}" />
 		<echo message="ant java.home: ${java.home}" />
-		<java classname="jnisat.LibDetect" classpath="jnisat.jar" fork="true" failonerror="true"/>
+		<java classname="org.jnisat.LibDetect" classpath="org.jnisat.jar" fork="true" failonerror="true"/>
 	</target>
 
 	<target name="validate" depends="detect" description="runs the validation program">
-		<java jar="jnisat.jar" fork="true" failonerror="true">
+		<java jar="org.jnisat.jar" fork="true" failonerror="true">
 			<jvmarg value="-ea" />
 		</java>
 	</target>

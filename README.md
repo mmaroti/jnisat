@@ -10,7 +10,7 @@ library is loaded from the JAR file by the Java virtual machine, and then
 the operating system links and loads the native solver library (picosat,
 minisat) that is actually doing the work. 
 The [Solver.java](src/jnisat/Solver.java) interface provides a unified 
-incremental SAT solver interface to MiniSat and PicoSat (and Sat4J).
+incremental SAT solver interface to MiniSat and PicoSat (and Sat4J version 2.3.1).
 See the simple [Validate.java](src/jnisat/Validate.java) application for basic usage.
 
 ## Installation

@@ -16,8 +16,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-module jnisat {
-	exports jnisat;
-	
-	requires org.sat4j.core;
+module org.jnisat {
+	exports org.jnisat;
 }
