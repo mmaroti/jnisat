@@ -9,10 +9,14 @@ jdk:
 
 addons:
   apt:
+    update: true
     packages:
     - ant
     - picosat
     - minisat
+
+before_script:
+- ant -version
 
 sudo: false
 
