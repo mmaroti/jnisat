@@ -10,6 +10,7 @@ jdk:
 addons:
   apt:
     packages:
+    - ant
     - picosat
     - minisat
 
