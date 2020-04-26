@@ -2,8 +2,10 @@ language: java
 script: ant travis
 
 jdk:
-- openjdk7
-- oraclejdk8
+- openjdk9
+- openjdk10
+- openjdk11
+- oraclejdk11
 
 addons:
   apt:

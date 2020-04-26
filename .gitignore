@@ -6,3 +6,4 @@ src/**/*~
 *.bak
 build/
 org.jnisat.jar
+/bin/
